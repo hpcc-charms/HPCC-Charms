@@ -32,8 +32,8 @@ juju status
 make sure platfrom deployed and ready
 ```sh
 juju deploy <build dir>/trusty/hpccsystems-plugins plugin --series trusty
-#juju debug-log
-#juju destroy-model default
+\#juju debug-log
+\#juju destroy-model default
 
 sleep 3
 juju add-relation hpcc plugin
@@ -46,7 +46,7 @@ juju models | grep default
 [ $? -ne 0 ] && juju add-model default
 juju deploy <build dir>/trusty/hpccsystems-cluster-manager mgr --series trusty
 juju status
-#juju debug-log
+\#juju debug-log
 juju deploy <build dir>/trusty/hpccsystems-cluster-node roxie --series trusty
 juju status
 ```
