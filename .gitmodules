@@ -1,6 +1,36 @@
-[submodule "interfaces/interface-hpccsystems-plugin"]
-	path = interfaces/interface-hpccsystems-plugin
-	url = https://github.com/hpcc-charms/interface-hpccsystems-plugin.git
+[submodule "deploy/Charm-Bundles"]
+	path = deploy/Charm-Bundles
+	url = https://github.com/hpcc-charms/Charm-Bundles.git
 [submodule "interfaces/interface-hpccsystems-cluster"]
 	path = interfaces/interface-hpccsystems-cluster
 	url = https://github.com/hpcc-charms/interface-hpccsystems-cluster.git
+[submodule "interfaces/interface-hpccsystems-plugin"]
+	path = interfaces/interface-hpccsystems-plugin
+	url = https://github.com/hpcc-charms/interface-hpccsystems-plugin.git
+[submodule "layers/layer-hpccsystems-cluster-manager"]
+	path = layers/layer-hpccsystems-cluster-manager
+	url = https://github.com/hpcc-charms/layer-hpccsystems-cluster-manager.git
+[submodule "layers/layer-hpccsystems-cluster-node"]
+	path = layers/layer-hpccsystems-cluster-node
+	url = https://github.com/hpcc-charms/layer-hpccsystems-cluster-node.git
+[submodule "layers/layer-hpccsystems-plugins"]
+	path = layers/layer-hpccsystems-plugins
+	url = https://github.com/hpcc-charms/layer-hpccsystems-plugins.git
+[submodule "layers/layer-hpccsystems-platform"]
+	path = layers/layer-hpccsystems-platform
+	url = https://github.com/hpcc-charms/layer-hpccsystems-platform.git
+[submodule "layers/layer-hpccsystems-cluster-manager-base"]
+	path = layers/layer-hpccsystems-cluster-manager-base
+	url = https://github.com/hpcc-charms/layer-hpccsystems-cluster-manager-base.git
+[submodule "layers/layer-hpccsystems-cluster-base"]
+	path = layers/layer-hpccsystems-cluster-base
+	url = https://github.com/hpcc-charms/layer-hpccsystems-cluster-base.git
+[submodule "layers/layer-hpccsystems-plugins-base"]
+	path = layers/layer-hpccsystems-plugins-base
+	url = https://github.com/hpcc-charms/layer-hpccsystems-plugins-base.git
+[submodule "layers/layer-hpccsystems-platform-base"]
+	path = layers/layer-hpccsystems-platform-base
+	url = https://github.com/hpcc-charms/layer-hpccsystems-platform-base.git
+[submodule "layers/layer-hpccsystems-base"]
+	path = layers/layer-hpccsystems-base
+	url = https://github.com/hpcc-charms/layer-hpccsystems-base.git
