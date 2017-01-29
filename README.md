@@ -1,5 +1,6 @@
 # HPCC-Charms
-Top level HPCC-Charms repository for build and deployment
+Top level HPCC-Charms repository for build and deployment. All the related projects are just prototypes. They are open for re-design and re-implementation. There two groups of charms: 1) Single HPCC Platform which has all supported plugins and module. The initial implementation includes layer-hpccsystems-platform and layer-hpccsystems-plugins 2) HPCC Cluster The initial implementation includes layer-hpccsystems-cluster-node and layer-hpccsystems-cluster-manager. Since both groups involved multiple charms we hope a group of charm bundles will be provided to easy deployment of various HPCC Charm setups. Each deployable charm also should have test using amulet APIs.
+
 
 # Build
 ##  Pre-requisites
