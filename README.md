@@ -13,13 +13,13 @@ To build all charms: run ./build.sh. The build output will be in ../build direct
 
 # Deploy
 ## Local Linux container
-1. pre-requisite: lxd
+### pre-requisite: lxd
 
-2. bootstrap
+### bootstrap
 ```sh
  juju bootstrap lxd-test localhost
 ```
-. deploy platform charm
+### deploy platform charm
 ```sh
 juju models | grep default
 [ $? -ne 0 ] && juju add-model default
@@ -27,7 +27,7 @@ juju deploy <build dir>/trusty/hpccsystems-platform hpcc --series trusty
 juju status
 ```
 
-3. deploy plugin charm
+### deploy plugin charm
 make sure platfrom deployed and ready
 ```sh
 juju deploy <build dir>/trusty/hpccsystems-plugins plugin --series trusty
@@ -39,7 +39,7 @@ juju add-relation hpcc plugin
 juju status
 ```
 
-4. deploy a roxie cluster
+### deploy a roxie cluster
 ```sh
 juju models | grep default
 [ $? -ne 0 ] && juju add-model default
@@ -55,7 +55,7 @@ juju add-relation mgr roxie
 ```
 
 
-5. destroy charms
+### destroy charms
 ```sh
 juju destroy-model default
 ```
