@@ -1,0 +1,9 @@
+[submodule "interfaces/interface-hpccsystems-plugin"]
+	path = interfaces/interface-hpccsystems-plugin
+	url = https://github.com/hpcc-charms/interface-hpccsystems-plugin.git
+[submodule "interfaces/interface-hpccsystems-cluster"]
+	path = interfaces/interface-hpccsystems-cluster
+	url = https://github.com/hpcc-charms/interface-hpccsystems-cluster.git
+[submodule "deploy/Charm-Bundles"]
+	path = deploy/Charm-Bundles
+	url = https://github.com/hpcc-charms/Charm-Bundles.git

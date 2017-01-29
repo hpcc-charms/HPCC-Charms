@@ -1,0 +1,6 @@
+SRC_DIR=$(pwd)
+export JUJU_REPOSITORY=${SRC_DIR}/../build
+export LAYER_PATH=$SRC_DIR/layers
+export INTERFACE_PATH=$SRC_DIR/interfaces
+
+
