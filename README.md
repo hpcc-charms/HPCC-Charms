@@ -10,7 +10,10 @@ Top level HPCC-Charms repository for build and deployment. All the related proje
 - charm-tools
 
 ## Build charms
-To build all charms: run ./build.sh. The build output will be in ../build directory
+- git clone https://github.com/hpcc-charms/HPCC-Charms.git
+- git submodule update --init
+- create a buid directory
+- cd to HPCC-Charms and run ./build.sh. The build output will be in ../build directory
 
 # Deploy
 ## Local Linux container
