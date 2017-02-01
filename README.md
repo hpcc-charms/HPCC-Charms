@@ -12,7 +12,7 @@ Top level HPCC-Charms repository for build and deployment. All the related proje
 ## Build charms
 - git clone https://github.com/hpcc-charms/HPCC-Charms.git
 - git submodule update --init
-- create a buid directory
+- create a build directory
 - cd to HPCC-Charms and run ./build.sh. The build output will be in ../build directory
 
 # Deploy
