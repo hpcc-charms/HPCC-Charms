@@ -13,7 +13,7 @@ Top level HPCC-Charms repository for build and deployment. All the related proje
 - git clone https://github.com/hpcc-charms/HPCC-Charms.git
 - git submodule update --init
 - create a build directory
-- cd to HPCC-Charms and run ./build.sh. The build output will be in ../build directory
+- cd to HPCC-Charms and run ./build.sh <source dir>. For example ./build.sh layers/layer-hpccsystems-platform . The build output will be in ../build directory
 
 # Deploy
 ## Local Linux container
