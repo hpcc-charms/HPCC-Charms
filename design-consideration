@@ -1,0 +1,118 @@
+Interfaces
+==========
+1. cluster-admin
+   provider: hpcc-cluster-manager
+   requirer: hpcc-node
+
+2. esp (optional as initial implementation):
+   provider: layer-hpcc-platform (option type:[standalone|support|esp])
+   requirer: third party charm need HPCC esp services
+
+3. eclcc (optional as initial implementation):
+   provider: layer-hpcc-platform (option type:[standalonei|support|eclcc])
+   requirer: HPCC Clienttools charm and third party charm need compile ECL code
+             One of the example could be HPCC Jupyter Notebook with HPCC Clienttools
+
+Layers
+==========
+1. layer-hpcc-platform
+
+   options:
+     type: one of following:
+        standalone
+        support
+        esp
+        dali
+        eclcc
+        thor
+        roxie
+     ganglia: true/false   
+     plugins: empty or a list of plugins separated by ","
+
+   Hook functions: 
+     1. install HPCC Platform
+     2. install HPCC plugins: option: plugins is not empty
+     3. install HPCC Ganglia-monitor: option: ganglia:true.  This also requires to 
+        install/configure all Ganglia prerequisites 
+     4. start/stop HPCC
+     5. re-generate environment.xml
+  
+   Reactive events:
+     1. stop HPCC
+     2. start HPCC
+     3. update HPCC Platform
+     4. update HPCC Plugins
+     5. update HPCC Ganglia-monitor
+     6. update environment.xml
+
+  Interfaces (optional as initial implementation):
+     1. esp: provider 
+     2. eclcc: provider
+    
+
+2. layer-hpcc-cluster-manager
+   Inhert layer-hpcc-platform
+
+   Additional Interface:
+     1. cluster-admin: provider
+  
+   Additional hook functions
+     1. HPCC nodes join/depart/broken
+     2. generate environment.xml
+     3. issue following events to all HPCC nodes through relation "cluster-admin"
+       issue event "refresh environment.xml" to all HPCC nodes through relation "cluster-admin"
+       stop all HPCC ndoes except dali 
+       stop dali
+       start deli
+       stop all HPCC ndoes except dali
+       update hpcc/plugins
+       update ganglia
+     4. install additional Linux packages.
+
+   Reactive events:
+     1. HPCC nodes join/depart/broken
+     2. environment.xml fetched on all nodes
+     3. dali stopped
+     4. all nodes exclude dali stopped
+     3. dali started
+     4. all nodes exclude dali started
+
+3. layer-hpcc-node
+   Inhert layer-hpcc-platform
+
+   Additional Interface:
+     1. cluster-admin: require
+
+   Additional hook functions
+     1. HPCC nodes join/depart/broken
+     2. fetch environment.xml from cluster manager 
+     3. convert relation "cluster-admin" events to local events for following actions:
+        start HPCC
+        stop HPCC
+     4. issue following events to cluster manager through relation "cluster-admin"
+        "environment.xml fetched"
+        "dali stopped"
+        "node stopped"
+        "dali started"
+        "node started"
+        "hpcc updated" 
+        "ganglia updated" 
+     5. install additional Linux packages.
+        
+   Reactive events:
+     1. HPCC nodes join/depart/broken
+     2. Handle following events from relation "cluster-admin"  
+        "refresh environmentx.ml"
+        "start dali"      
+        "start nodes"      
+        "stop dali"      
+        "stop nodes"      
+        update HPCC Platform/Plugins 
+        update HPCC ganglia 
+
+ 
+Reference:
+   1. https://docs.jujucharms.com/2.4/en/
+   2. Charm development example from Juju Charm: https://github.com/johnsca/layered-vanilla
+   3. Early prototype of HPCC Charm (This is based on beta release of Juju 2.0. Some implementation need 
+      revisited and updated): https://github.com/hpcc-charms/HPCC-Charms/tree/prototype-2018
