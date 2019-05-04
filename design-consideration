@@ -1,5 +1,8 @@
 Interfaces
 ==========
+
+Only esp and eclcc should be separated projects which are for other charms to communicate with HPCC Charms
+
 1. cluster-admin
    provider: hpcc-cluster-manager
    requirer: hpcc-node
@@ -9,7 +12,7 @@ Interfaces
    requirer: third party charm need HPCC esp services
 
 3. eclcc (optional as initial implementation):
-   provider: layer-hpcc-platform (option type:[standalonei|support|eclcc])
+   provider: layer-hpcc-platform (option type:[standalone|support|eclcc])
    requirer: HPCC Clienttools charm and third party charm need compile ECL code
              One of the example could be HPCC Jupyter Notebook with HPCC Clienttools
 

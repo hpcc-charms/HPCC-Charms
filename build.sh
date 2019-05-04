@@ -22,10 +22,10 @@ do
    echo ""
    echo "build $charm"
    cd ${LAYER_PATH}/$charm
-   echo "Ubuntu 14.04 amd64 Trusty"
-   charm build -s trusty
-   echo "Ubuntu 16.04 amd64 Xenial"
-   charm build -s xenial
+   #echo "Ubuntu 14.04 amd64 Trusty"
+   #charm build -s trusty
+   echo "Ubuntu 16.04 amd64 Boinic"
+   charm build -s bionic
 done
 
 
