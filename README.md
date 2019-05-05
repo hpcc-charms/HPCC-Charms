@@ -41,7 +41,7 @@ juju status
 ### deploy plugin charm
 make sure platfrom deployed and ready
 ```sh
-juju deploy <build dir>/trusty/hpccsystems-plugins plugin --series trusty
+juju deploy <build dir>/trusty/hpccsystems-plugins plugin --series bionic
 #juju debug-log
 #juju destroy-model default
 
