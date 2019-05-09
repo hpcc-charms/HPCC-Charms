@@ -4,42 +4,38 @@ Top level HPCC-Charms repository for build and deployment. All the related proje
 
 # Build
 ##  Pre-requisites
-- Ubuntu 16.04 amd64 Xenial
+- Ubuntu 18.04 amd64 Xenial
 - Python 3.0
-- juju-2.0 
-- charm-tools
+- juju-2.5" sudo snap install juju 
+- lxd : sudo snap install lxd
+- charm-tools: sudo snap install charm
 
 ## Build charms
 - git clone https://github.com/hpcc-charms/HPCC-Charms.git
 - git submodule update --init
 - create a build directory
-- cd to HPCC-Charms and run ./build.sh <source dir>. For example ./build.sh layers/layer-hpccsystems-platform . The build output will be in ../build directory
+- cd to HPCC-Charms and run ./build.sh. The build output will be in ../build directory
 
 # Deploy
 ## Local Linux container
 ### pre-requisite: lxd
+#lxd init --auto (probably already done)
+#lxd init --auto --storage-backend zfs (probably already done)
+lxc network set lxdbr0 ipv6.address none
+
+#Check network: lxc network get lxdbr0 ipv4.address
+#Sample output: 10.172.37.1/24
 
 ### bootstrap
+# need this after system reboot
 ```sh
- juju bootstrap lxd-test localhost
+ juju bootstrap localhost lxd-test
 ```
 ### deploy platform charm
 ```sh
 juju models | grep default
 [ $? -ne 0 ] && juju add-model default
-juju deploy <build dir>/trusty/hpccsystems-platform hpcc --series trusty
-juju status
-```
-
-### deploy plugin charm
-make sure platfrom deployed and ready
-```sh
-juju deploy <build dir>/trusty/hpccsystems-plugins plugin --series trusty
-#juju debug-log
-#juju destroy-model default
-
-sleep 3
-juju add-relation hpcc plugin
+juju deploy <build dir>/builds/hpccsystems-platform hpcc --series bionic
 juju status
 ```
 
@@ -58,8 +54,19 @@ When both are started add relation
 juju add-relation mgr roxie
 ```
 
+### Debug
+```sh
+juju debug-log
+```
+
 
 ### destroy charms
 ```sh
 juju destroy-model default
 ```
+
+
+##Troubleshooting
+### Can't kill controller
+ERROR getting controller environ: unable to get bootstrap information from client store or API
+Solution: juju unregister -y <controller name>
