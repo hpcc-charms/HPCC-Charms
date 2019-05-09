@@ -1,0 +1,23 @@
+packages:
+ - python
+ - libpython2.7
+ - python3
+ - wget
+ - xterm
+ - g++
+ - openssh-client
+ - openssh-server
+ - libapr1
+ - libaprutil1
+ - libboost-regex1.65.1
+ - libmemcached11
+ - libmemcachedutil2
+ - psmisc
+ - libldap-2.4-2
+ - libnuma1
+ - libtbb2 
+ - expect
+ - rsync
+ - zip
+ - curl
+ - libatlas3-base

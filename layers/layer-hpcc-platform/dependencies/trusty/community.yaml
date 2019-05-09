@@ -1,0 +1,19 @@
+packages:
+ - python2.7
+ - python3
+ - wget
+ - g++
+ - libboost-regex1.54.0
+ - libicu52
+ - libxml2
+ - libxslt1.1
+ - openssh-client
+ - openssh-server
+ - libaprutil1
+ - libldap-2.4-2
+ - libnuma1
+ - libtbb2 
+ - expect
+ - rsync
+ - zip
+ - libatlas3-base

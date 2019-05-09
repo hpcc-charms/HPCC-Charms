@@ -3,15 +3,15 @@ Interfaces
 
 Only esp and eclcc should be separated projects which are for other charms to communicate with HPCC Charms
 
-1. cluster-admin
-   provider: hpcc-cluster-manager
+1. hpcc-cluster
+   provider: hpcc-manager
    requirer: hpcc-node
 
-2. esp (optional as initial implementation):
+2. hpcc-esp (optional as initial implementation):
    provider: layer-hpcc-platform (option type:[standalone|support|esp])
    requirer: third party charm need HPCC esp services
 
-3. eclcc (optional as initial implementation):
+3. hpcc-eclcc (optional as initial implementation):
    provider: layer-hpcc-platform (option type:[standalone|support|eclcc])
    requirer: HPCC Clienttools charm and third party charm need compile ECL code
              One of the example could be HPCC Jupyter Notebook with HPCC Clienttools
@@ -29,6 +29,7 @@ Layers
         eclcc
         thor
         roxie
+        node
      ganglia: true/false   
      plugins: empty or a list of plugins separated by ","
 
@@ -53,11 +54,11 @@ Layers
      2. eclcc: provider
     
 
-2. layer-hpcc-cluster-manager
+2. layer-hpcc-manager
    Inhert layer-hpcc-platform
 
    Additional Interface:
-     1. cluster-admin: provider
+     1. hpcc-cluster: provider
   
    Additional hook functions
      1. HPCC nodes join/depart/broken
@@ -84,7 +85,7 @@ Layers
    Inhert layer-hpcc-platform
 
    Additional Interface:
-     1. cluster-admin: require
+     1. hpcc-cluster: require
 
    Additional hook functions
      1. HPCC nodes join/depart/broken

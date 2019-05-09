@@ -1,0 +1,17 @@
+packages:
+ - python2.7
+ - python3
+ - wget
+ - g++
+ - openssh-client
+ - openssh-server
+ - libapr1
+ - psmisc
+ - libldap-2.4-2
+ - libnuma1
+ - libtbb2 
+ - expect
+ - rsync
+ - zip
+ - curl
+ - libblas3

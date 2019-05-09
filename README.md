@@ -14,7 +14,7 @@ Top level HPCC-Charms repository for build and deployment. All the related proje
 - git clone https://github.com/hpcc-charms/HPCC-Charms.git
 - git submodule update --init
 - create a build directory
-- cd to HPCC-Charms and run ./build.sh <source dir>. For example ./build.sh layers/layer-hpccsystems-platform . The build output will be in ../build directory
+- cd to HPCC-Charms and run ./build.sh. The build output will be in ../build directory
 
 # Deploy
 ## Local Linux container
@@ -27,6 +27,7 @@ lxc network set lxdbr0 ipv6.address none
 #Sample output: 10.172.37.1/24
 
 ### bootstrap
+# need this after system reboot
 ```sh
  juju bootstrap localhost lxd-test
 ```
@@ -34,19 +35,7 @@ lxc network set lxdbr0 ipv6.address none
 ```sh
 juju models | grep default
 [ $? -ne 0 ] && juju add-model default
-juju deploy <build dir>/trusty/hpccsystems-platform hpcc --series bionic
-juju status
-```
-
-### deploy plugin charm
-make sure platfrom deployed and ready
-```sh
-juju deploy <build dir>/trusty/hpccsystems-plugins plugin --series bionic
-#juju debug-log
-#juju destroy-model default
-
-sleep 3
-juju add-relation hpcc plugin
+juju deploy <build dir>/builds/hpccsystems-platform hpcc --series bionic
 juju status
 ```
 
@@ -63,6 +52,11 @@ juju status
 When both are started add relation
 ```sh
 juju add-relation mgr roxie
+```
+
+### Debug
+```sh
+juju debug-log
 ```
 
 
