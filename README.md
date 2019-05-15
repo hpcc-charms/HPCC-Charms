@@ -29,6 +29,7 @@ lxc network set lxdbr0 ipv6.address none
 ### bootstrap
 # need this after system reboot
 ```sh
+ lxc network get lxdbr0 ipv4.address
  juju bootstrap localhost lxd-test
 ```
 ### deploy platform charm

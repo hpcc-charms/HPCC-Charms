@@ -26,6 +26,8 @@ from charms.reactive.bus import remove_state
 from charms.reactive import hook, when, when_not
 
 from charms.layer.hpcc_install import HPCCInstallation
+from charms.layer.hpcc_init import HPCCInit
+from charms.layer.hpcc_config import HPCCConfig
 from charms.layer.utils import SSHKey
 
 @hook('install')
@@ -39,8 +41,11 @@ def install_platform():
     #config = hookenv.config()
     #if config['ssh-key-private']:
     #    install_keys_from_config(config)
+
+    hpcc_config = HPCCConfig()
+    hpcc_config.open_ports()
+
     set_state('platform.installed')
-    #platform.open_ports()
 
 @hook('config-changed')
 def config_changed():
@@ -75,7 +80,7 @@ def install_keys_from_config(config):
 @when_not('platform.configured')
 @when_not('platform.started')
 def configure_platform():
-    #platform = HPCCSystemsPlatformConfig()
+    #hpcc_config = HPCCConfig()
     #platform.open_ports()
     set_state('platform.configured')
 
@@ -86,17 +91,14 @@ def configure_platform():
 def start_platform():
     remove_state('platform.started')
     remove_state('platform.start.failed')
-    #platform = HPCCSystemsPlatformConfig()
-    #if platform.start():
-    #   set_state('platform.start.failed')
-    #   hookenv.status_set('blocked', 'hpcc start failed')
-    #else:
-    #   set_state('platform.started')
-    #   hookenv.status_set('active', 'started')
+    hpcc_init = HPCCInit()
+    if hpcc_init.start():
+       set_state('platform.start.failed')
+       hookenv.status_set('blocked', 'hpcc start failed')
+    else:
+       set_state('platform.started')
+       hookenv.status_set('active', 'started')
 
-    set_state('platform.started')
-    hookenv.status_set('active', 'started')
-
-@when('hpcc-esp.available')     
-def configure_esp(http):
-    http.configure(8010)
+#@when('hpcc-esp.available')     
+#def configure_esp(http):
+#    http.configure(8010)
