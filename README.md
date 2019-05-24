@@ -69,5 +69,6 @@ juju destroy-model default
 
 ##Troubleshooting
 ### Can't kill controller
+juju kill-controllers <controller name>
 ERROR getting controller environ: unable to get bootstrap information from client store or API
 Solution: juju unregister -y <controller name>
