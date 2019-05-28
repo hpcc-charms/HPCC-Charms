@@ -12,9 +12,9 @@ export CHARM_INTERFACES_DIR=$SRC_DIR/interfaces
 mkdir -p $JUJU_REPOSITORY
 
 
-charms="layer-hpcc-platform"
+charms="layer-hpcc-platform \
+        layer-hpcc-cluster-admin"
 #        layer-hpcc-cluster-node \
-#        layer-hpcc-cluster-manager"
 
 for charm in ${charms}
 do

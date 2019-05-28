@@ -1,4 +1,4 @@
-name: hpcc-platform
+name: hpcc-cluster-admin
 summary: HPCC (High Performance Computing Cluster) administration
 maintainers:
    -  hpcc-systems <hpcc-systems@lexisnexis.com>
