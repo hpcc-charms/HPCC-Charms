@@ -1,4 +1,4 @@
-name: hpcc-cluster-admin
+name: hpcc-cluster-dali
 summary: HPCC (High Performance Computing Cluster) administration
 maintainers:
    -  hpcc-systems <hpcc-systems@lexisnexis.com>
@@ -28,7 +28,7 @@ tags:
 subordinate: false
 
 provides:
-  hpcc-admin:
+  hpcc-dali:
     interface: hpcccluster
 
 

@@ -89,6 +89,13 @@ def configure_platform():
 @when_not('platform.started')
 @when_not('platform.start.failed')
 def start_platform():
+    
+    config = hookenv.config()
+    if config['node-type'] != 'standalone':
+       hookenv.status_set('active', 'ready')
+       set_state('platform.ready')
+       return True
+
     remove_state('platform.started')
     remove_state('platform.start.failed')
     hpcc_init = HPCCInit()

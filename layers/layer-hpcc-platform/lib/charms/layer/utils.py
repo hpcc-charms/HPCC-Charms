@@ -8,6 +8,8 @@ from pathlib import Path
 
 from charmhelpers import fetch
 
+from charms.layer.hpccenv import HPCCEnv
+
 IP_FILE_PATTERN =re.compile("^\s*\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\s*(;)?\s*$")
 IP4_PATTERN =re.compile("^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$")
 
@@ -90,5 +92,20 @@ def package_uninstall_cmd():
 def batch_install(packages):
      # will deal with other linux distro later
     return fetch.apt_install(fetch.filter_installed_packages(packages))
+
+def has_component(component, ip):
+    try:
+        output = check_output([HPCCEnv.HPCC_HOME + '/sbin/configgen',
+                  '-env', HPCCEnv.CONFIG_DIR + '/environment.xml',
+                  '-t', component, '-listall2'], shell=True)
+
+        if ip in output:
+            return True
+       
+    except CalledProcessError as e:
+        log(e.output, ERROR)
+
+    return False
+
 
 # get dali ip with configgen -env /etc/HPCCSystems/environmen.xml -listall | grep DaliServer | cut -d',' -f2

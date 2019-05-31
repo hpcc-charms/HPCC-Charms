@@ -13,8 +13,10 @@ mkdir -p $JUJU_REPOSITORY
 
 
 charms="layer-hpcc-platform \
-        layer-hpcc-cluster-admin"
-#        layer-hpcc-cluster-node \
+        layer-hpcc-cluster-node \
+        layer-hpcc-cluster-dali"
+
+[ -d ${JUJU_REPOSITORY}/builds ] && rm -rf  ${JUJU_REPOSITORY}/builds  
 
 for charm in ${charms}
 do

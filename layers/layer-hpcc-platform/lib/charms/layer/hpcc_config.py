@@ -46,3 +46,24 @@ class HPCCConfig (object):
             hookenv.open_port(18010, 'TCP')
             hookenv.open_port(18002, 'TCP')
             hookenv.open_port(18008, 'TCP')
+        else:
+            if has_component('esp', hookenv.unit_private_ip()):
+                hookenv.open_port(8010, 'TCP')
+                hookenv.open_port(8002, 'TCP')
+                hookenv.open_port(8015, 'TCP')
+                hookenv.open_port(9876, 'TCP')
+
+                hookenv.open_port(18010, 'TCP')
+                hookenv.open_port(18002, 'TCP')
+                hookenv.open_port(18008, 'TCP')
+            else:
+                hookenv.close_port(8010, 'TCP')
+                hookenv.close_port(8002, 'TCP')
+                hookenv.close_port(8015, 'TCP')
+                hookenv.close_port(9876, 'TCP')
+
+                hookenv.close_port(18010, 'TCP')
+                hookenv.close_port(18002, 'TCP')
+                hookenv.close_port(18008, 'TCP')
+         
+

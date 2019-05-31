@@ -145,15 +145,16 @@ class InstallationBasic (object):
 
     def additional_prerequisites(self):
         if 'additional-packages' in self.config:
-           additional_package = self.config['additional-packages']
+           additional_packages = self.config['additional-packages']
            if additional_packages:
-              rc = self.install_prerequisites(additional_package)
+              rc = self.install_prerequisites(additional_packages)
               if rc != True:
                  return False
 
         if 'additional-install' in self.config:
            additional_install = self.config['additional-install']
            if additional_install:
+              charm_dir = hookenv.charm_dir()
               cmd =  charm_dir + '/dependencies/' + platform.linux_distribution()[2] + '/' + additional_install
               try: 
                  output = check_output([cmd, 'status'], shell=True)
@@ -170,7 +171,6 @@ class PlatformInstallation (InstallationBasic):
 
     def __init__(self):
         InstallationBasic.__init__(self)
-
         
     def get_package_name(self):
         hpcc_type = self.config['platform-type']
