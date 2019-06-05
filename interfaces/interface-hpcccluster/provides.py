@@ -3,7 +3,19 @@
 from charmhelpers.core import hookenv
 from charms.reactive import set_flag, clear_flag, scopes
 from charms.reactive import Endpoint
-from charms.reactive.decorators import when_any, when_all, when_not
+from charms.reactive.decorators import when, when_any, when_all, when_not
+
+from charmhelpers import fetch
+#from charmhelpers.core import host
+from charmhelpers.core import hookenv
+from charmhelpers.core.hookenv import log
+# log level: CRITICAL,ERROR,WARNING,INFO,DEBUG
+from charmhelpers.core.hookenv import CRITICAL
+from charmhelpers.core.hookenv import ERROR
+from charmhelpers.core.hookenv import WARNING
+from charmhelpers.core.hookenv import INFO
+from charmhelpers.core.hookenv import DEBUG
+
 
 class HPCCClusterProvides(Endpoint):
 
@@ -71,4 +83,9 @@ class HPCCClusterProvides(Endpoint):
         #clear_flag(self.expand_name('endpoint.{endpoint_name}.new-dali-state'))
         clear_flag(self.expand_name('endpoint.{endpoint_name}.new-node-state'))
     
+
+    @when('endpoint.{endpoint_name}.joined')
+    def joined(self):
+        log(relation.application_name(), INFO)
+       
 

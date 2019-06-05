@@ -67,6 +67,12 @@ class HPCCInstallation (object):
         basic_install =  InstallationBasic()
         basic_install.additional_prerequisites()
         
+        if self.config['node-type'] == 'dali':
+           try: 
+               output = check_output(['mkdir', '-p', HPCCEnv.CLUSTER_CURRENT_IPS_DIR], shell=True)
+           except CalledProcessError as e:
+               log(e.output, ERROR)
+               return False
 
 class InstallationBasic (object):
     def __init__(self):

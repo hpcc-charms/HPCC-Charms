@@ -3,10 +3,21 @@ import os
 import sys
 import platform
 import re
-from subprocess import check_call, check_output
+from subprocess import check_call, check_output, CalledProcessError
 from pathlib import Path
 
 from charmhelpers import fetch
+from charmhelpers.core.hookenv import log
+from charmhelpers.core.hookenv import CRITICAL
+from charmhelpers.core.hookenv import ERROR
+from charmhelpers.core.hookenv import WARNING
+from charmhelpers.core.hookenv import INFO
+from charmhelpers.core.hookenv import DEBUG
+#from charmhelpers.core import templating
+
+
+
+
 
 from charms.layer.hpccenv import HPCCEnv
 
@@ -95,6 +106,9 @@ def batch_install(packages):
 
 def has_component(component, ip):
     try:
+        if (not os.path.isfile(HPCCEnv.CONFIG_DIR + '/environment.xml')):
+            return False
+
         output = check_output([HPCCEnv.HPCC_HOME + '/sbin/configgen',
                   '-env', HPCCEnv.CONFIG_DIR + '/environment.xml',
                   '-t', component, '-listall2'], shell=True)
@@ -106,6 +120,5 @@ def has_component(component, ip):
         log(e.output, ERROR)
 
     return False
-
 
 # get dali ip with configgen -env /etc/HPCCSystems/environmen.xml -listall | grep DaliServer | cut -d',' -f2

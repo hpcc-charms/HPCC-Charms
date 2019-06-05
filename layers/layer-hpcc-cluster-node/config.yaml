@@ -7,10 +7,10 @@ options:
 
   additional-packages:
     type: string
-    default: dali
+    default: node
     description: prefix of file name (.yaml) which contain additional prerequisites package list
 
   additional-install:
     type: string
-    default: dali.sh
+    default: node.sh
     description: shell script to install or configure this charm.
