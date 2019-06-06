@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import os
+import os,stat
 import platform
 import yaml
 import re
@@ -68,11 +68,9 @@ class HPCCInstallation (object):
         basic_install.additional_prerequisites()
         
         if self.config['node-type'] == 'dali':
-           try: 
-               output = check_output(['mkdir', '-p', HPCCEnv.CLUSTER_CURRENT_IPS_DIR], shell=True)
-           except CalledProcessError as e:
-               log(e.output, ERROR)
-               return False
+           log(' create ' +   HPCCEnv.CLUSTER_CURRENT_IPS_DIR, INFO)
+           os.makedirs(HPCCEnv.CLUSTER_CURRENT_IPS_DIR)
+           os.chmod(HPCCEnv.CLUSTER_CURRENT_IPS_DIR, stat.S_IWOTH)
 
 class InstallationBasic (object):
     def __init__(self):

@@ -34,6 +34,15 @@ class HPCCClusterProvides(Endpoint):
             relation.to_publish['hostname'] = hostname or hookenv.unit_get('private_address')
             relation.to_publish['port'] = port
 
+    @when_any('endpoint.{endpoint_name}.changed.node-private-ip')
+    def new_dali_state(self):
+        remote_unit = hookenv.remote_unit()
+        private_ip = remote_unit.received['private-ip']
+        unit_id = remote_unit.received['unit-it']
+        log('unit id: ' + unit_id + ',ip:' + private_ip, INFO) 
+
+
+
     #@when_any('endpoint.{endpoint_name}.changed.dali-state')
     #def new_dali_state(self):
     #    set_flag(self.expand_name('endpoint.{endpoint_name}.new-dali-state'))
@@ -86,6 +95,6 @@ class HPCCClusterProvides(Endpoint):
 
     @when('endpoint.{endpoint_name}.joined')
     def joined(self):
-        log(relation.application_name(), INFO)
+        log(hookenv.relation_id(), INFO)
        
 

@@ -11,6 +11,7 @@ export CHARM_INTERFACES_DIR=$SRC_DIR/interfaces
 
 mkdir -p $JUJU_REPOSITORY
 
+rm -rf ${JUJU_REPOSITORY}/builds/*
 
 charms="layer-hpcc-platform \
         layer-hpcc-cluster-node \
