@@ -70,7 +70,15 @@ class HPCCInstallation (object):
         if self.config['node-type'] == 'dali':
            log(' create ' +   HPCCEnv.CLUSTER_CURRENT_IPS_DIR, INFO)
            os.makedirs(HPCCEnv.CLUSTER_CURRENT_IPS_DIR)
-           os.chmod(HPCCEnv.CLUSTER_CURRENT_IPS_DIR, stat.S_IWOTH)
+           try: 
+               output = check_output(['chmod', '-R', '777'], shell=True)
+               log(output, INFO)
+               return True
+           except CalledProcessError as e:
+               log(e.output, INFO)
+               return False
+
+           #os.chmod(HPCCEnv.CLUSTER_CURRENT_IPS_DIR, stat.S_IWOTH)
 
 class InstallationBasic (object):
     def __init__(self):

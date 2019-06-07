@@ -5,6 +5,15 @@ from charms.reactive import set_flag, clear_flag, scopes
 from charms.reactive import Endpoint
 from charms.reactive.decorators import when, when_any, when_all, when_not
 
+from charmhelpers.core.hookenv import log
+# log level: CRITICAL,ERROR,WARNING,INFO,DEBUG
+from charmhelpers.core.hookenv import CRITICAL
+from charmhelpers.core.hookenv import ERROR
+from charmhelpers.core.hookenv import WARNING
+from charmhelpers.core.hookenv import INFO
+from charmhelpers.core.hookenv import DEBUG
+
+
 class HPCCClusterRequires(Endpoint):
 
     scope = scopes.GLOBAL

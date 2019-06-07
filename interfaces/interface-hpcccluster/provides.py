@@ -16,6 +16,9 @@ from charmhelpers.core.hookenv import WARNING
 from charmhelpers.core.hookenv import INFO
 from charmhelpers.core.hookenv import DEBUG
 
+from charms.layer.utils import (
+     update_ip_files
+)
 
 class HPCCClusterProvides(Endpoint):
 
@@ -34,14 +37,16 @@ class HPCCClusterProvides(Endpoint):
             relation.to_publish['hostname'] = hostname or hookenv.unit_get('private_address')
             relation.to_publish['port'] = port
 
-    @when_any('endpoint.{endpoint_name}.changed.node-private-ip')
+    @when_any('endpoint.{endpoint_name}.changed.private-ip')
     def new_dali_state(self):
         remote_unit = hookenv.remote_unit()
         private_ip = remote_unit.received['private-ip']
         unit_id = remote_unit.received['unit-it']
         log('unit id: ' + unit_id + ',ip:' + private_ip, INFO) 
 
-
+        # add/modify cluster ip file
+        update_ip_files(unit_id, ip)
+        
 
     #@when_any('endpoint.{endpoint_name}.changed.dali-state')
     #def new_dali_state(self):
@@ -96,5 +101,6 @@ class HPCCClusterProvides(Endpoint):
     @when('endpoint.{endpoint_name}.joined')
     def joined(self):
         log(hookenv.relation_id(), INFO)
+       
        
 
