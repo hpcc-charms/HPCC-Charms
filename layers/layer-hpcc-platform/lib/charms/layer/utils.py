@@ -127,32 +127,29 @@ def update_ip_files(unit_id, ip, dir=None):
        out_dir = HPCCEnv.CLUSTER_CURRENT_IPS_DIR 
 
     ip_file_name = out_dir + '/' +  unit_id.split('/')[0]
-    units_and_ips = out_dir + '/' +  units_and_ips
+    units_and_ips = out_dir + '/units_and_ips'
     
     open(ip_file_name, 'a').close()
     open(units_and_ips, 'a').close()
     
-    if not os.path.isfile(units_and_ips):
-       return True
-
     result = 'UNIT-NOT-FOUND'
     current_ip = ''
-    with open (unites_and_ips) as file:
+    with open (units_and_ips) as file:
        for line in file:
          line_unit_id, line_ip = line.split()
          if line_unit_id == unit_id:
             if ip == line_ip:
-               return True
+               return False
             else:
                current_ip = line_ip
                result = 'IP-NOT-FOUND'
                break
             
     if result == 'UNIT-NOT-FOUND':
-       write_unit_and_ip_to_file(unit_and_files, unit_id, ip)
+       write_unit_and_ip_to_file(units_and_ips, unit_id, ip)
        write_ip_to_file(ip_file_name, ip)
     elif result == 'IP-NOT-FOUND':
-       replace_str_in_file(unit_and_files, current_ip, ip)
+       replace_str_in_file(units_and_ips, current_ip, ip)
        replace_str_in_file(ip_file_name, current_ip, ip)
 
     return True
@@ -165,7 +162,7 @@ def write_ip_to_file(file_name, ip, mode='a'):
 
 def write_unit_and_ip_to_file(file_name, unit_id, ip, mode='a'):
     f_ips = open(file_name, mode)
-    f_units.write(unit_id + ' ' + ip + "\n")   
+    f_ips.write(unit_id + ' ' + ip + "\n")   
     f_ips.close()
     return True
 

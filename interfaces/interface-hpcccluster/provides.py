@@ -37,15 +37,23 @@ class HPCCClusterProvides(Endpoint):
             relation.to_publish['hostname'] = hostname or hookenv.unit_get('private_address')
             relation.to_publish['port'] = port
 
-    @when_any('endpoint.{endpoint_name}.changed.private-ip')
-    def new_dali_state(self):
-        remote_unit = hookenv.remote_unit()
-        private_ip = remote_unit.received['private-ip']
-        unit_id = remote_unit.received['unit-it']
-        log('unit id: ' + unit_id + ',ip:' + private_ip, INFO) 
+    @when_any('endpoint.{endpoint_name}.changed.node-ip')
+    def process_node_ip_(self):
+        log('process changed node_ip', INFO)
+        for relation in self.relations:
+            for unit in relation.units:
+                ip = unit.received['node-ip']
+                id = unit.received['node-id']
+                #log('ip:' + ip, INFO) 
+                #log('unit id: ' + id, INFO) 
 
-        # add/modify cluster ip file
-        update_ip_files(unit_id, ip)
+                # add/modify cluster ip file
+                rc = update_ip_files(id, ip)
+
+        if rc == True:
+           set_flag(self.expand_name('endpoint.{endpoint_name}.cluster-changed'))
+        clear_flag(self.expand_name('endpoint.{endpoint_name}.changed.node-ip'))
+        clear_flag(self.expand_name('endpoint.{endpoint_name}.changed.unit-id'))
         
 
     #@when_any('endpoint.{endpoint_name}.changed.dali-state')

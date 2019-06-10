@@ -28,8 +28,10 @@ class HPCCClusterRequires(Endpoint):
     @when('endpoint.{endpoint_name}.joined')
     def publish_node_private_ip(self):
         relation = self.relations[0]
-        relation.to_publish['private-ip'] = hookenv.unit_private_ip()
-        relation.to_publish['unit-id'] = hookenv.local_unit()
+        relation.to_publish['node-ip'] = hookenv.unit_private_ip()
+        log('unit private ip: ' + hookenv.unit_private_ip(), INFO)
+        relation.to_publish['node-id'] = hookenv.local_unit()
+        log('unit id: ' + hookenv.local_unit(), INFO)
 
     @when_not('endpoint.{endpoint_name}.joined')
     def broken(self):

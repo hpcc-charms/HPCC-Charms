@@ -5,6 +5,16 @@ options:
     default: dali
     description: standalone, dali, roxie, thor, esp, support, node, etc
 
+  auto-envxml:
+    type: boolean
+    default: false
+    description: automatically generate environment.xml
+
+  update-envxml:
+    type: string
+    default: ""
+    description: when this option changed charm will update environment.xml
+
   additional-packages:
     type: string
     default: dali

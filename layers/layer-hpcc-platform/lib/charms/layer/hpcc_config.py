@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 
 import os
+import sys
 import platform
 import yaml
 import re
+import getopt
 import glob
 # python 2.7
 #import ConfigParser
@@ -67,6 +69,13 @@ class HPCCConfig (object):
                 hookenv.close_port(18002, 'TCP')
                 hookenv.close_port(18008, 'TCP')
          
+    def create_envxml(self, configs, ip_dir, out_file):
+        node_ips_file = ip_dir + '/node'
+        if os.path.isfile(node_ips_file):
+           return self.create_simple_envxml(configs, node_ips_file, out_file)
+        else:
+           return self.create_complex_envxml(configs, ip_dir, out_file)
+       
 
     def create_simple_envxml(self, configs, ip_file, out_file):
 
@@ -163,9 +172,7 @@ class HPCCConfig (object):
 
         if rc == False: return rc
 
-
         try:
-
             #Add esp
             if len(esp_ip_files):
                self.add_esp_envxml(configs, ip_dir, out_file)
@@ -265,3 +272,45 @@ class HPCCConfig (object):
             raise Exception(e.output)
 
         return True
+
+def usage():
+    print("Usage hpcc_config.py [option(s)]\n")
+    print("  -?, --help               print help")
+    print("  -c  --chksum             script file md5 checksum")
+    print("\n");
+
+
+if __name__ == '__main__':
+
+    ip_dir  = HPCCEnv.CLUSTER_CURRENT_IPS_DIR
+    ip_file = ''
+    output  =  '/etc/HPCCSystems/environment.xml'
+
+    try:
+        opts, args = getopt.getopt(sys.argv[1:],":d:f:o",
+            ["help", "ip-dir","ip-file","output"])
+
+    except getopt.GetoptError as err:
+        print(str(err))
+        usage()
+        exit(0)
+
+    for arg, value in opts:
+        if arg in ("-?", "--help"):
+           usage()
+           exit(0)
+        elif arg in ("-d", "--ip-dir"):
+           ip_dir = value
+        elif arg in ("-f", "--ip-file"):
+           ip_file = value
+        elif arg in ("-o", "--output"):
+           output = value
+        else:
+           print("\nUnknown option: " + arg)
+           usage()
+           exit(0)
+
+    hpcc_config = HPCCConfig()
+    configs = hookenv.config()
+    
+    hpcc_config.create_envxml(configs, ip_dir, out_file)

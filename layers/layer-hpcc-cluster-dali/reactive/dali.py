@@ -22,10 +22,45 @@ from charms.reactive.helpers import is_state
 from charms.reactive.bus import set_state
 from charms.reactive.bus import get_state
 from charms.reactive.bus import remove_state
-from charms.reactive import hook, when, when_not
+from charms.reactive import hook, when, when_not, set_flag, clear_flag
 
 from charms.layer.hpcc_init import HPCCInit
 from charms.layer.hpcc_config import HPCCConfig
+from charms.layer.hpccenv import HPCCEnv
+
+@when('endpoint.hpcc-dali.cluster-changed')
+@when_not('endpoint.hpcc-dali.changed.node-ip')
+def cluster_change():
+    set_state('cluster.changed')
+    clear_flag('endpoint.reverseproxy.cluster-changed')
+    set_flag('endpoint.reverseproxy.update-env')
+
+@when('endpoint.hpcc-dali.update-env')
+@when_not('endpoint.hpcc-dali.changed.node-ip')
+def update_env():
+
+    clear_flag('endpoint.reverseproxy.cluster-changed')
+    set_flag('endpoint.reverseproxy.update-environment')
+
+    hpcc_config = HPCCConfig()
+    config = hookenv.config()
+    hpcc_config.creat_envxml(config, HPCCEnv.CLUSTER_CURRENT_IPS_DIR, 
+        CONFIG_DIR + '/' + ENV_XML_FILE) 
+
+    set_state('env.updated')
+
+
+@hook('config-changed')
+def dali_config_changed():
+
+    config = hookenv.config()
+    if  config['update-envxml'] == '': return
+
+    if config.changed('update-envxml'):
+       hpcc_config.creat_envxml(config, HPCCEnv.CLUSTER_CURRENT_IPS_DIR, 
+           CONFIG_DIR + '/' + ENV_XML_FILE) 
+
+    set_state('env.updated')
 
 
 #@when('endpoint.hpcc-dali.joined')
