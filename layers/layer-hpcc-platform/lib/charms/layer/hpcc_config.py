@@ -105,60 +105,63 @@ class HPCCConfig (object):
 
         cmd = []
         cmd.append(HPCCEnv.HPCC_HOME + '/sbin/envgen')
-        cmd.append('-env', out_file, '-ipfile', ip_file)
-        cmd.append('-supportnodes', support_nodes) 
-        cmd.append('-espnodes', esp_nodes) 
+        cmd.extend(['-env', out_file, '-ipfile', ip_file])
+        cmd.extend(['-supportnodes', str(support_nodes)]) 
+        cmd.extend(['-espnodes', str(esp_nodes)]) 
         #if esp_nodes > 0:
-            #cmd.append('-override', 'esp', '@method', 'htpasswd') 
+            #cmd.extend(['-override', 'esp', '@method', 'htpasswd']) 
 
-        cmd.append('-roxienodes', roxie_nodes) 
+        cmd.extend(['-roxienodes', str(roxie_nodes)]) 
         if roxie_nodes > 0:
            if 'roxie-channels' in configs: 
-               cmd.append('-roxieChannelsPerSlave', configs['roxie-channels']) 
+               cmd.extend(['-roxieChannelsPerSlave', str(configs['roxie-channels'])]) 
            if 'roxie-on-demand' in configs:
-               cmd.append('-roxieondemand', configs['roxie-on-demand']) 
-           cmd.append('-override', 'roxie', '@copyResources', 'true')
-
-        cmd.append('-thornodes', thor_nodes) 
+               cmd.extend(['-roxieondemand', str(configs['roxie-on-demand'])]) 
+           cmd.extend(['-override', 'roxie', '@copyResources', 'true'])
+        
+        cmd.extend(['-thornodes', str(thor_nodes)]) 
         if thor_nodes > 0:
            if 'slave-per-node' in configs:
-               cmd.append('-slavesPerNode', configs['slaves-per-node']) 
+               cmd.extend(['-slavesPerNode', str(configs['slaves-per-node'])]) 
            if 'thor-channels' in configs:
-               cmd.append('-thorChannelsPerSlave', configs['thor-channels']) 
-           cmd.append('-override', 'thor', '@replicateOutputs','true') 
-           cmd.append('-override', 'thor','@replicateAsync', 'true')       
+               cmd.extend(['-thorChannelsPerSlave', str(configs['thor-channels'])]) 
+           cmd.extend(['-override', 'thor', '@replicateOutputs','true']) 
+           cmd.extend(['-override', 'thor','@replicateAsync', 'true'])       
 
-        cmd.append('-assign_ips', 'dali', hookenv.unit-get('private-address')) 
+        cmd.extend(['-assign_ips', 'dali', hookenv.unit_private_ip()]) 
 
         try:
-            output = check_output(cmd, shell=True)
+            output = check_output(cmd)
         except CalledProcessError as e:
-            log(e.output, ERROR)
+            #log(e.output, ERROR)  # Doesn't work
+            print(e.output)
             return False
 
-        if ((roxie_node) > 0 and ('cloud-type' in configs) and 
+        if ((roxie_nodes) > 0 and ('cloud-type' in configs) and 
             (configs['cloud-type'] == 'aws')):
             cmd = []
-            cmd.append(HPCCEnv.HPCC_HOME + '/sbin/envgen2')
-            cmd.append('-env-in', out_file, '-env-out', out_file)
-            cmd.append('-cloud', configs['cloud-type']) 
+            cmd.extend(HPCCEnv.HPCC_HOME + '/sbin/envgen2')
+            cmd.extend(['-env-in', out_file, '-env-out', out_file])
+            cmd.extend(['-cloud', configs['cloud-type']]) 
             try:
-                output = check_output(cmd, shell=True)
+                output = check_output(cmd)
+                #output = check_output(cmd, shell=True) # seems not work. need check
             except CalledProcessError as e:
-                log(e.output, ERROR)
+                #log(e.output, ERROR)
+                print(e.output)
                 return False
 
         return True
 
     def create_complex_envxml(self, configs, ip_dir, out_file):
         # Dali and Support nodes
-        if os.path.isfile('ip_dir/support'):
-           support_nodes = len(open(ip_dir/support).readlines())
+        if os.path.isfile(ip_dir + '/support'):
+           support_nodes = len(open(ip_dir + '/support').readlines())
         else:
            log("Missing support nodes.", ERROR)
            return False
 
-        esp_ip_files = glob.glob(ip_dir/'esp*') 
+        esp_ip_files = glob.glob(ip_dir + '/esp*') 
         if len(esp_ip_files):
            esp_nodes = 0 
         else:
@@ -167,28 +170,29 @@ class HPCCConfig (object):
            else:
                esp_nodes = 1
 
-        rc = self.create_default_envxml(configs, ip_dir/support, out_file, 
+        rc = self.create_default_envxml(configs, ip_dir + '/support', out_file, 
             support_nodes, esp_nodes, 0, 0)
 
-        if rc == False: return rc
+        if not rc: return False
 
         try:
             #Add esp
-            if len(esp_ip_files):
+            if len(esp_ip_files) > 0:
                self.add_esp_envxml(configs, ip_dir, out_file)
         
             # Add Roxie
-            roxie_ip_files = glob.glob(ip_dir/'roxie*') 
-            if len(roxie_ip_files):
+            roxie_ip_files = glob.glob(ip_dir + '/roxie*') 
+            if len(roxie_ip_files) > 0:
                self.add_roxie_envxml(configs, ip_dir, out_file)
 
             # Add Thor
-            thor_ip_files = glob.glob(ip_dir/'thor*') 
+            thor_ip_files = glob.glob(ip_dir + '/thor*') 
             if len(thor_ip_files):
                self.add_thor_envxml(configs, ip_dir, out_file)
 
         except Exception as e:
-            log(e.output, ERROR)
+            #log(e, ERROR)
+            print(e)
             return False
 
         return True
@@ -196,16 +200,18 @@ class HPCCConfig (object):
     def add_esp_envxml(self, configs, ip_dir, env_file):
         cmd = []
         cmd.append(HPCCEnv.HPCC_HOME + '/sbin/envgen2')
-        cmd.append('-env-in', env_file, '-env-out', env_file)
+        cmd.extend(['-env-in', env_file, '-env-out', env_file])
 
-        esp_ip_files = glob.glob(ip_dir/'esp-*') 
+        esp_ip_files = glob.glob(ip_dir + '/esp-*') 
         for esp_ip_file in esp_ip_files:
-            ip_file = os.path.basename(roxie_ip_file)            
+            log('Process esp ip file ' + esp_ip_file, INFO)
+            ip_file = os.path.basename(esp_ip_file)            
             comp, name = ip_file.split('-')            
-            cmd.append('-add-node', comp + '#' + name + '@ipfile=' + esp_ip_file)
+            cmd.extend(['-add-node', comp + '#' + name + '@ipfile=' + esp_ip_file])
 
         try:
-            output = check_output(cmd, shell=True)
+            #output = check_output(cmd, shell=True)
+            output = check_output(cmd)
         except CalledProcessError as e:
             raise Exception(e.output)
 
@@ -214,29 +220,30 @@ class HPCCConfig (object):
     def add_roxie_envxml(self, configs, ip_dir, env_file):
         cmd = []
         cmd.append(HPCCEnv.HPCC_HOME + '/sbin/envgen2')
-        cmd.append('-env-in', env_file, '-env-out', env_file)
+        cmd.extend(['-env-in', env_file, '-env-out', env_file])
 
-        roxie_ip_files = glob.glob(ip_dir/'roxie-*') 
+        roxie_ip_files = glob.glob(ip_dir + '/roxie-*') 
         for roxie_ip_file in roxie_ip_files:
+            log('Process roxie ip file ' + roxie_ip_file, INFO)
             ip_file = os.path.basename(roxie_ip_file)            
             comp, name = ip_file.split('-')            
-            cmd.append('-add-node', comp + '#' + name + '@ipfile=' + roxie_ip_file)
+            cmd.extend(['-add-node', comp + '#' + name + '@ipfile=' + roxie_ip_file])
             # Will deal with roxieChannelsPerSlave and roxieondemand later
-            cmd.append('-mod', comp + '#' + name + '@copyResources=true')
+            cmd.extend(['-mod', 'sw:' + comp + '#' + name + '@copyResources=true'])
 
             # Add topology. Will deal input eclagent, scheduluer and eclcc later. Probably from etcd which set in  
             # each roxie application config.yaml
-            cmd.append('-add-topology', 'topology:cluster@name=' + name + ':eclagent@process=myeclagent:eclscheduler@process=myeclscheduler:eclccserver@process=myeclccserver:roxie@process=' + name)
+            cmd.extend(['-add-topology', 'topology:cluster@name=' + name + ':eclagent@process=myeclagent:eclscheduler@process=myeclscheduler:eclccserver@process=myeclccserver:roxie@process=' + name])
    
        # cloud. Make sure esp done already
         if 'cloud-type' in configs and (configs['cloud-type'] == 'aws'):
             cmd = []
             cmd.append(HPCCEnv.HPCC_HOME + '/sbin/envgen2')
-            cmd.append('-env-in', out_file, '-env-out', out_file)
-            cmd.append('-cloud', configs['cloud-type']) 
+            cmd.extend(['-env-in', out_file, '-env-out', out_file])
+            cmd.extend(['-cloud', configs['cloud-type']]) 
 
         try:
-            output = check_output(cmd, shell=True)
+            output = check_output(cmd)
         except CalledProcessError as e:
             raise Exception(e.output)
 
@@ -245,10 +252,11 @@ class HPCCConfig (object):
     def add_thor_envxml(self, configs, ip_dir, env_file):
         cmd = []
         cmd.append(HPCCEnv.HPCC_HOME + '/sbin/envgen2')
-        cmd.append('-env-in', env_file, '-env-out', env_file)
+        cmd.extend(['-env-in', env_file, '-env-out', env_file])
 
-        thor_ip_files = glob.glob(ip_dir/'thor-*') 
+        thor_ip_files = glob.glob(ip_dir + '/thor-*') 
         for thor_ip_file in thor_ip_files:
+            log('Process thor ip file ' + thor_ip_file, INFO)
             ip_file = os.path.basename(thor_ip_file)            
             comp, name = ip_file.split('-')            
 
@@ -256,18 +264,18 @@ class HPCCConfig (object):
             if not os.path.isfile(master_file):
                raise Exception('Missing expected thor master file ' + master_file)
             with open(master_file, 'r') as file:
-                master_ip = file.readlines()
+                master_ip = file.readlines()[0]
                 master_ip = master_ip.strip()
 
-            cmd.append('-add-node', comp + '#' + name + 'master@ip=' + master_ip + ':slave@ipfile=' + thor_ip_file)
+            cmd.extend(['-add-node', comp + '#' + name + ':master@ip=' + master_ip + ':slave@ipfile=' + thor_ip_file])
             # Will deal with thorChannelsPerSlave and slavesPerNode later
-            cmd.append('-mod', comp + '#' + name + '@replicateOutputs=true^replicateAsync=true')       
+            cmd.extend(['-mod', 'sw:' + comp + '#' + name + '@replicateOutputs=true^replicateAsync=true'])       
 
             # Add topology. Will deal input eclagent, scheduluer and eclcc later. Probably from etcd which set in  
             # each roxie application config.yaml
-            cmd.append('-add-topology', 'topology:cluster@name=' + name + ':eclagent@process=myeclagent:eclscheduler@process=myeclscheduler:eclccserver@process=myeclccserver:thor@process=' + name)
+            cmd.extend(['-add-topology', 'topology:cluster@name=' + name + ':eclagent@process=myeclagent:eclscheduler@process=myeclscheduler:eclccserver@process=myeclccserver:thor@process=' + name])
         try:
-            output = check_output(cmd, shell=True)
+            output = check_output(cmd)
         except CalledProcessError as e:
             raise Exception(e.output)
 

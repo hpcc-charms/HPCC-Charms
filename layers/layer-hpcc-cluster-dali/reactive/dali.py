@@ -44,8 +44,8 @@ def update_env():
 
     hpcc_config = HPCCConfig()
     config = hookenv.config()
-    hpcc_config.creat_envxml(config, HPCCEnv.CLUSTER_CURRENT_IPS_DIR, 
-        CONFIG_DIR + '/' + ENV_XML_FILE) 
+    hpcc_config.create_envxml(config, HPCCEnv.CLUSTER_CURRENT_IPS_DIR, 
+        HPCCEnv.CONFIG_DIR + '/' + HPCCEnv.ENV_XML_FILE) 
 
     set_state('env.updated')
 
@@ -57,8 +57,9 @@ def dali_config_changed():
     if  config['update-envxml'] == '': return
 
     if config.changed('update-envxml'):
-       hpcc_config.creat_envxml(config, HPCCEnv.CLUSTER_CURRENT_IPS_DIR, 
-           CONFIG_DIR + '/' + ENV_XML_FILE) 
+       hpcc_config = HPCCConfig()
+       hpcc_config.create_envxml(config, HPCCEnv.CLUSTER_CURRENT_IPS_DIR, 
+           HPCCEnv.CONFIG_DIR + '/' + HPCCEnv.ENV_XML_FILE) 
 
     set_state('env.updated')
 

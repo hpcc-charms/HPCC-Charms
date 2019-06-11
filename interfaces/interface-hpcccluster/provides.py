@@ -38,14 +38,16 @@ class HPCCClusterProvides(Endpoint):
             relation.to_publish['port'] = port
 
     @when_any('endpoint.{endpoint_name}.changed.node-ip')
+    @when_any('endpoint.{endpoint_name}.changed.node-id')
     def process_node_ip_(self):
         log('process changed node_ip', INFO)
         for relation in self.relations:
             for unit in relation.units:
                 ip = unit.received['node-ip']
                 id = unit.received['node-id']
-                #log('ip:' + ip, INFO) 
-                #log('unit id: ' + id, INFO) 
+                if ip is None or id is None: break
+                log('node ip:' + ip, INFO) 
+                log('node id: ' + id, INFO) 
 
                 # add/modify cluster ip file
                 rc = update_ip_files(id, ip)
