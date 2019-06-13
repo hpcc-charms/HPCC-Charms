@@ -79,7 +79,7 @@ class HPCCConfig (object):
 
     def create_simple_envxml(self, configs, ip_file, out_file):
 
-        support_nodes = configs['support-node'] 
+        support_nodes = configs['support-nodes'] 
 
         if 'esp-nodes' in configs:
             esp_nodes = configs['esp-nodes'] 
@@ -109,7 +109,7 @@ class HPCCConfig (object):
         cmd.extend(['-supportnodes', str(support_nodes)]) 
         cmd.extend(['-espnodes', str(esp_nodes)]) 
         #if esp_nodes > 0:
-            #cmd.extend(['-override', 'esp', '@method', 'htpasswd']) 
+            #cmd.extend(['-override', 'esp,@method,htpasswd']) 
 
         cmd.extend(['-roxienodes', str(roxie_nodes)]) 
         if roxie_nodes > 0:
@@ -117,7 +117,7 @@ class HPCCConfig (object):
                cmd.extend(['-roxieChannelsPerSlave', str(configs['roxie-channels'])]) 
            if 'roxie-on-demand' in configs:
                cmd.extend(['-roxieondemand', str(configs['roxie-on-demand'])]) 
-           cmd.extend(['-override', 'roxie', '@copyResources', 'true'])
+           cmd.extend(['-override', 'roxie,@copyResources,true'])
         
         cmd.extend(['-thornodes', str(thor_nodes)]) 
         if thor_nodes > 0:
@@ -125,8 +125,8 @@ class HPCCConfig (object):
                cmd.extend(['-slavesPerNode', str(configs['slaves-per-node'])]) 
            if 'thor-channels' in configs:
                cmd.extend(['-thorChannelsPerSlave', str(configs['thor-channels'])]) 
-           cmd.extend(['-override', 'thor', '@replicateOutputs','true']) 
-           cmd.extend(['-override', 'thor','@replicateAsync', 'true'])       
+           cmd.extend(['-override', 'thor,@replicateOutputs,true']) 
+           cmd.extend(['-override', 'thor,@replicateAsync,true'])       
 
         cmd.extend(['-assign_ips', 'dali', hookenv.unit_private_ip()]) 
 
