@@ -69,7 +69,8 @@ class HPCCInstallation (object):
         
         if self.config['node-type'] == 'dali':
            log(' create ' +   HPCCEnv.CLUSTER_CURRENT_IPS_DIR, INFO)
-           os.makedirs(HPCCEnv.CLUSTER_CURRENT_IPS_DIR)
+           if not os.path.exists(HPCCEnv.CLUSTER_CURRENT_IPS_DIR):
+              os.makedirs(HPCCEnv.CLUSTER_CURRENT_IPS_DIR)
            try: 
                output = check_output(['chmod', '-R', '777'], shell=True)
                log(output, INFO)

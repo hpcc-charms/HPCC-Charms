@@ -24,7 +24,7 @@ class HPCCClusterProvides(Endpoint):
 
     scope = scopes.GLOBAL
 
-    def publish_info(self, port, hostname=None): 
+    def publish_info(self, port=2380, hostname=None): 
         """
         Publish the port and hostname of the website over the relationship so
         it is accessible to the remote units at the other side of the
@@ -34,13 +34,14 @@ class HPCCClusterProvides(Endpoint):
         Etcd port for client: 2379, for server 2380
         """
         for relation in self.relations:
-            relation.to_publish['hostname'] = hostname or hookenv.unit_get('private_address')
+            relation.to_publish['hostname'] = hostname or hookenv.unit_get('private-address')
             relation.to_publish['port'] = port
 
-    @when_any('endpoint.{endpoint_name}.changed.node-ip')
-    @when_any('endpoint.{endpoint_name}.changed.node-id')
+    @when_any('endpoint.{endpoint_name}.changed.node-ip', 
+              'endpoint.{endpoint_name}.changed.node-id')
     def process_node_ip_(self):
         log('process changed node_ip', INFO)
+        result = True
         for relation in self.relations:
             for unit in relation.units:
                 ip = unit.received['node-ip']
@@ -51,11 +52,16 @@ class HPCCClusterProvides(Endpoint):
 
                 # add/modify cluster ip file
                 rc = update_ip_files(id, ip)
+                if not rc:
+                   result = False
+                   break
+            if not result:
+               break
 
-        if rc == True:
+        if result:
            set_flag(self.expand_name('endpoint.{endpoint_name}.cluster-changed'))
         clear_flag(self.expand_name('endpoint.{endpoint_name}.changed.node-ip'))
-        clear_flag(self.expand_name('endpoint.{endpoint_name}.changed.unit-id'))
+        clear_flag(self.expand_name('endpoint.{endpoint_name}.changed.node-id'))
         
 
     #@when_any('endpoint.{endpoint_name}.changed.dali-state')
@@ -84,33 +90,59 @@ class HPCCClusterProvides(Endpoint):
     #           break
     #    return dali_state
 
-    @when_all('endpoint.{endpoint_name}.changed.node-state')
-    def new_node_state(self):
-        set_flag(self.expand_name('endpoint.{endpoint_name}.new-node-state'))
+    @when('endpoint.{endpoint_name}.changed.node-state')
+    @when_not('endpoint.{endpoint_name}.nodes_stopped')
+    def process_stop_node(self):
+        log('All nodes state changee', INFO)
+        units_data = self.get_relation_data('node-state')
         clear_flag(self.expand_name('endpoint.{endpoint_name}.changed.node-state'))
+        all_nodes_stopped = True
+        for unit_data in units_data:
+            if not unit_data['state']:
+               log('Some nodes node-state have not changed', INFO)
+               all_nodes_stopped = False
+               break
+ 
+            if unit_data['state'] != 'stopped':
+               log('Expect unit state:  stopped, but get ' + unit_data['state'], INFO)
+               set_flag(self.expand_name('endpoint.{endpoint_name}.stop-error'))
+               return False
 
-    def get_node_state(self):
-        nodes_state  = []
+        if all_nodes_stopped:
+           set_flag(self.expand_name('endpoint.{endpoint_name}.nodes-stopped'))
+
+
+    def get_relation_data(self, data_name):
+        units_data  = []
         for relation in self.relations:
             for unit in relation.units:
-                state = unit.received['node-state']
-                nodes_state.append({
-                    'state'            : state,
-                    'relation_id'      : relation.relation_id,
-                    'remote_unit_name' : unit.unit_name
-               }) 
-        return nodes_state
+                state = unit.received[data_name]
+                units_data.append({
+                    'state': state,
+                    'relation_id': relation.relation_id,
+                    'remote_unit_name': unit.unit_name
+                })
+        return units_data
 
-    def publish_cluster_action(self, action): 
+    def publish_relation_data(self, name, value): 
+        log('Publish relation data: name=' + name  + ' value=' + value, INFO)
         for relation in self.relations:
-            relation.to_publish['cluster-action'] = action
+            relation.to_publish[name] = value
         #clear_flag(self.expand_name('endpoint.{endpoint_name}.new-dali-state'))
-        clear_flag(self.expand_name('endpoint.{endpoint_name}.new-node-state'))
+        #clear_flag(self.expand_name('endpoint.{endpoint_name}.new-node-state'))
     
 
-    @when('endpoint.{endpoint_name}.joined')
-    def joined(self):
-        log(hookenv.relation_id(), INFO)
-       
-       
+    @when('endpoint.{endpoint_name}.stopping-cluster')
+    def stop_cluster(self):
+        self.publish_relation_data('cluster-action', 'stop-node') 
+        clear_flag('endpoint.{endpoint_name}.stopping-cluster')
 
+    @when('endpoint.{endpoint_name}.starting-cluster')
+    def start_cluster(self):
+        self.publish_relation_data('cluster-action', 'start-node') 
+        clear_flag('endpoint.{endpoint_name}.starting-cluster')
+
+    @when('endpoint.{endpoint_name}.fetch-envxml')
+    def start_cluster(self):
+        self.publish_relation_data('cluster-action', 'fetch-envxml') 
+        clear_flag('endpoint.{endpoint_name}.fetch-envxml')

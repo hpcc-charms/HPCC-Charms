@@ -11,17 +11,17 @@ options:
     description: automatically generate environment.xml
 
   support-nodes:
-    type: integer
+    type: int
     default: 1
     description: HPCC cluster support node number
 
   roxie-nodes:
-    type: integer
+    type: int
     default: 1
     description: HPCC cluster roxie node number
 
   thor-nodes:
-    type: integer
+    type: int
     default: 1
     description: HPCC cluster thor slave node number
 

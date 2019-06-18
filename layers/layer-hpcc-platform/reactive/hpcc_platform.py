@@ -78,11 +78,17 @@ def install_keys_from_config(config):
 
 @when('platform.installed')
 @when_not('platform.configured')
+@when_not('platform.ready')
 @when_not('platform.started')
 def configure_platform():
     #hpcc_config = HPCCConfig()
     #platform.open_ports()
-    set_state('platform.configured')
+    config = hookenv.config()
+    if config['node-type'] == 'standalone':
+       set_state('platform.configured')
+    else:
+       hookenv.status_set('active', 'ready')
+       set_state('platform.ready')
 
 # @when_not('platform.configured')?????
 @when('platform.configured')
@@ -91,10 +97,10 @@ def configure_platform():
 def start_platform():
     
     config = hookenv.config()
-    if config['node-type'] != 'standalone':
-       hookenv.status_set('active', 'ready')
-       set_state('platform.ready')
-       return True
+    #if config['node-type'] != 'standalone':
+    #   hookenv.status_set('active', 'ready')
+    #   set_state('platform.ready')
+    #   return True
 
     remove_state('platform.started')
     remove_state('platform.start.failed')

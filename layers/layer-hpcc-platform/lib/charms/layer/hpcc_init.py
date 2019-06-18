@@ -40,8 +40,9 @@ class HPCCInit (object):
             log(output, INFO)
         except CalledProcessError as e:
             log(e.output, ERROR)
-            return 1
+            return False
 
+        return True
 
     def stop(self):
         hookenv.status_set('maintenance', 'Stopping HPCC')
@@ -51,7 +52,11 @@ class HPCCInit (object):
             log(output, INFO)
         except CalledProcessError as e:
             log(e.output, ERROR)
-            return 1
+            hookenv.status_set('maintenance', 'Error in stopping HPCC')
+            return False
+
+        hookenv.status_set('active', 'HPCC stopped')
+        return True
 
     def restart(self):
         hookenv.status_set('maintenance', 'Restarting HPCC')
@@ -61,13 +66,16 @@ class HPCCInit (object):
             log(output, INFO)
         except CalledProcessError as e:
             log(e.output, ERROR)
-            return 1
+            return False
+
+        return True
 
     def is_running(self):
         try:
             output = check_output([HPCCEnv.HPCC_HOME+'/etc/init.d/hpcc-init', 'status'], shell=True)
             log(output, INFO)
-            return true
         except CalledProcessError as e:
             log(e.output, INFO)
-            return false
+            return False
+
+        return True

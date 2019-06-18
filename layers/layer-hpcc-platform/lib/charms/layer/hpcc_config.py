@@ -131,6 +131,7 @@ class HPCCConfig (object):
         cmd.extend(['-assign_ips', 'dali', hookenv.unit_private_ip()]) 
 
         try:
+            print(*cmd)
             output = check_output(cmd)
         except CalledProcessError as e:
             #log(e.output, ERROR)  # Doesn't work
@@ -144,6 +145,7 @@ class HPCCConfig (object):
             cmd.extend(['-env-in', out_file, '-env-out', out_file])
             cmd.extend(['-cloud', configs['cloud-type']]) 
             try:
+                print(*cmd) 
                 output = check_output(cmd)
                 #output = check_output(cmd, shell=True) # seems not work. need check
             except CalledProcessError as e:
@@ -210,6 +212,7 @@ class HPCCConfig (object):
             cmd.extend(['-add-node', comp + '#' + name + '@ipfile=' + esp_ip_file])
 
         try:
+            print(*cmd)
             #output = check_output(cmd, shell=True)
             output = check_output(cmd)
         except CalledProcessError as e:
@@ -243,6 +246,7 @@ class HPCCConfig (object):
             cmd.extend(['-cloud', configs['cloud-type']]) 
 
         try:
+            print(*cmd)
             output = check_output(cmd)
         except CalledProcessError as e:
             raise Exception(e.output)
@@ -275,6 +279,7 @@ class HPCCConfig (object):
             # each roxie application config.yaml
             cmd.extend(['-add-topology', 'topology:cluster@name=' + name + ':eclagent@process=myeclagent:eclscheduler@process=myeclscheduler:eclccserver@process=myeclccserver:thor@process=' + name])
         try:
+            print(*cmd)
             output = check_output(cmd)
         except CalledProcessError as e:
             raise Exception(e.output)
