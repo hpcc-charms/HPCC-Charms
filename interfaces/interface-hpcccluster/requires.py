@@ -69,6 +69,7 @@ class HPCCClusterRequires(Endpoint):
 
         log('New cluster action: ' + action, INFO)
         set_flag(self.expand_name('endpoint.{endpoint_name}.' + action))
+        clear_flag(self.expand_name('endpoint.{endpoint_name}.changed.cluster-action'))
 
     def get_relation_data(self, name):
         relation = self.relations[0]
@@ -78,7 +79,6 @@ class HPCCClusterRequires(Endpoint):
     def publish_relation_data(self, name, value): 
         relation = self.relations[0]
         relation.to_publish[name] = value 
-        #clear_flag(self.expand_name('endpoint.{endpoint_name}.changed.action'))
 
     @when('endpoint.{endpoint_name}.node-stopped')
     @when_not('endpoint.{endpoint_name}.node-wait')

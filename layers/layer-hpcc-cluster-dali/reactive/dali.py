@@ -81,8 +81,8 @@ def update_env():
 @when('endpoint.hpcc-dali.env-updated')
 def fetch_env():
     clear_flag('endpoint.hpcc-dali.env-updated')
-    set_flag('endpoint.hpcc-dali.fetch-envxml')
     set_flag('endpoint.hpcc-dali.wait-fetch-envxml')
+    set_flag('endpoint.hpcc-dali.fetch-envxml')
 
 
 @when('endpoint.hpcc-dali.envxml-fetched')
@@ -96,7 +96,7 @@ def start_cluster():
        status_set('blocked', 'start.dali.error')
        return False
 
-    set_state('HPCC.started')
+    status_set('active', 'HPCC.started')
 
     # start rest of cluster nodes
     clear_flag('endpoint.hpcc-dali.envxml-fetched')

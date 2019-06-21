@@ -167,8 +167,8 @@ class HPCCClusterProvides(Endpoint):
                return False
 
         if all_nodes_fetched_envxml:
-           set_flag(self.expand_name('endpoint.{endpoint_name}.envxml-fetched'))
            clear_flag(self.expand_name('endpoint.{endpoint_name}.changed.node-state'))
+           set_flag(self.expand_name('endpoint.{endpoint_name}.envxml-fetched'))
 
     @when('endpoint.{endpoint_name}.changed.node-state')
     @when('endpoint.{endpoint_name}.wait-nodes-started')
@@ -189,5 +189,5 @@ class HPCCClusterProvides(Endpoint):
                return False
 
         if all_nodes_started:
-           set_flag(self.expand_name('endpoint.{endpoint_name}.nodes-started'))
            clear_flag(self.expand_name('endpoint.{endpoint_name}.changed.node-state'))
+           set_flag(self.expand_name('endpoint.{endpoint_name}.nodes-started'))
