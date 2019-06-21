@@ -13,6 +13,8 @@ from charmhelpers.core.hookenv import WARNING
 from charmhelpers.core.hookenv import INFO
 from charmhelpers.core.hookenv import DEBUG
 
+from charmhelpers.core.hookenv import status_set
+
 
 class HPCCClusterRequires(Endpoint):
 
@@ -27,12 +29,15 @@ class HPCCClusterRequires(Endpoint):
         clear_flag(self.expand_name('endpoint.{endpoint_name}.changed.port'))
 
     @when('endpoint.{endpoint_name}.joined')
+    @when_not('endpoint.{endpoint_name}.ip-published')
     def publish_node_private_ip(self):
         relation = self.relations[0]
         relation.to_publish['node-ip'] = hookenv.unit_private_ip()
         log('unit private ip: ' + hookenv.unit_private_ip(), INFO)
         relation.to_publish['node-id'] = hookenv.local_unit()
         log('unit id: ' + hookenv.local_unit(), INFO)
+        status_set('active', hookenv.local_unit().split('/')[0] + '.joined')
+        set_flag(self.expand_name('endpoint.{endpoint_name}.ip-published'))
 
     @when_not('endpoint.{endpoint_name}.joined')
     def broken(self):
@@ -45,13 +50,13 @@ class HPCCClusterRequires(Endpoint):
         hostname = unit.received['hostname']
         port = unit.received['port']
         log('set dali hostname: ' + hostname, INFO)
-        hookenv.relation_set({
+        hookenv.relation_set(**{
            'dali-hostname': hostname,       
            'dali-etcd-port': port,      
            'dali-relation-id': relation.relation_id,
-           'dali-unit_name': unit.unit_name
         })
 
+    #       'dali-unit_name': unit.unit_name
    
     #def publish_node_type(self, type):
     #    relation = self.relations[0]

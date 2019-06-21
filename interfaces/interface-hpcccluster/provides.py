@@ -46,22 +46,23 @@ class HPCCClusterProvides(Endpoint):
             for unit in relation.units:
                 ip = unit.received['node-ip']
                 id = unit.received['node-id']
-                if ip is None or id is None: break
+                if ip is None or id is None: 
+                   result = False
+                   break
                 log('node ip:' + ip, INFO) 
                 log('node id: ' + id, INFO) 
 
                 # add/modify cluster ip file
-                rc = update_ip_files(id, ip)
-                if not rc:
-                   result = False
-                   break
+                update_ip_files(id, ip)
             if not result:
                break
 
         if result:
            set_flag(self.expand_name('endpoint.{endpoint_name}.cluster-changed'))
-        clear_flag(self.expand_name('endpoint.{endpoint_name}.changed.node-ip'))
-        clear_flag(self.expand_name('endpoint.{endpoint_name}.changed.node-id'))
+
+           # clear following may not able to collect un-published nodes' ip 
+           clear_flag(self.expand_name('endpoint.{endpoint_name}.changed.node-ip'))
+           clear_flag(self.expand_name('endpoint.{endpoint_name}.changed.node-id'))
         
 
     #@when_any('endpoint.{endpoint_name}.changed.dali-state')
@@ -91,11 +92,11 @@ class HPCCClusterProvides(Endpoint):
     #    return dali_state
 
     @when('endpoint.{endpoint_name}.changed.node-state')
-    @when_not('endpoint.{endpoint_name}.nodes_stopped')
-    def process_stop_node(self):
+    @when('endpoint.{endpoint_name}.wait-nodes-stopped')
+    @when_not('endpoint.{endpoint_name}.nodes-stopped')
+    def process_stop_nodes(self):
         log('All nodes state changee', INFO)
         units_data = self.get_relation_data('node-state')
-        clear_flag(self.expand_name('endpoint.{endpoint_name}.changed.node-state'))
         all_nodes_stopped = True
         for unit_data in units_data:
             if not unit_data['state']:
@@ -105,11 +106,12 @@ class HPCCClusterProvides(Endpoint):
  
             if unit_data['state'] != 'stopped':
                log('Expect unit state:  stopped, but get ' + unit_data['state'], INFO)
-               set_flag(self.expand_name('endpoint.{endpoint_name}.stop-error'))
+               #set_flag(self.expand_name('endpoint.{endpoint_name}.stop-error'))
                return False
 
         if all_nodes_stopped:
            set_flag(self.expand_name('endpoint.{endpoint_name}.nodes-stopped'))
+           clear_flag(self.expand_name('endpoint.{endpoint_name}.changed.node-state'))
 
 
     def get_relation_data(self, data_name):
@@ -135,14 +137,57 @@ class HPCCClusterProvides(Endpoint):
     @when('endpoint.{endpoint_name}.stopping-cluster')
     def stop_cluster(self):
         self.publish_relation_data('cluster-action', 'stop-node') 
-        clear_flag('endpoint.{endpoint_name}.stopping-cluster')
+        clear_flag(self.expand_name('endpoint.{endpoint_name}.stopping-cluster'))
 
     @when('endpoint.{endpoint_name}.starting-cluster')
     def start_cluster(self):
         self.publish_relation_data('cluster-action', 'start-node') 
-        clear_flag('endpoint.{endpoint_name}.starting-cluster')
+        clear_flag(self.expand_name('endpoint.{endpoint_name}.starting-cluster'))
+        #clear_flag('endpoint.{endpoint_name}.starting-cluster')
 
     @when('endpoint.{endpoint_name}.fetch-envxml')
-    def start_cluster(self):
+    def fetch_envxml(self):
         self.publish_relation_data('cluster-action', 'fetch-envxml') 
-        clear_flag('endpoint.{endpoint_name}.fetch-envxml')
+        clear_flag(self.expand_name('endpoint.{endpoint_name}.fetch-envxml'))
+
+    @when('endpoint.{endpoint_name}.changed.node-state')
+    @when('endpoint.{endpoint_name}.wait-fetch-envxml')
+    @when_not('endpoint.{endpoint_name}.envxml-fetched')
+    def process_fetch_envxml(self):
+        units_data = self.get_relation_data('node-state')
+        all_nodes_fetched_envxml = True
+        for unit_data in units_data:
+            if not unit_data['state']:
+               log('Some nodes node-state have not changed', INFO)
+               all_nodes_fetched_envxml = False
+               break
+ 
+            if unit_data['state'] != 'envxml-fetched':
+               log('Expect unit state:  envxml-fetched, but get ' + unit_data['state'], INFO)
+               return False
+
+        if all_nodes_fetched_envxml:
+           set_flag(self.expand_name('endpoint.{endpoint_name}.envxml-fetched'))
+           clear_flag(self.expand_name('endpoint.{endpoint_name}.changed.node-state'))
+
+    @when('endpoint.{endpoint_name}.changed.node-state')
+    @when('endpoint.{endpoint_name}.wait-nodes-started')
+    @when_not('endpoint.{endpoint_name}.nodes-started')
+    def process_start_nodes(self):
+        log('All nodes state changee', INFO)
+        units_data = self.get_relation_data('node-state')
+        all_nodes_started = True
+        for unit_data in units_data:
+            if not unit_data['state']:
+               log('Some nodes node-state have not changed', INFO)
+               all_nodes_stopped = False
+               break
+ 
+            if unit_data['state'] != 'started':
+               log('Expect unit state:  started, but get ' + unit_data['state'], INFO)
+               #set_flag(self.expand_name('endpoint.{endpoint_name}.start-error'))
+               return False
+
+        if all_nodes_started:
+           set_flag(self.expand_name('endpoint.{endpoint_name}.nodes-started'))
+           clear_flag(self.expand_name('endpoint.{endpoint_name}.changed.node-state'))
