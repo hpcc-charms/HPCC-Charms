@@ -36,29 +36,59 @@ lxc network set lxdbr0 ipv6.address none
 ```sh
 juju models | grep default
 [ $? -ne 0 ] && juju add-model default
-juju deploy <build dir>/builds/hpccsystems-platform hpcc --series bionic
+juju deploy <build dir>/builds/hpcc-platform hpcc --series bionic
 juju status
 ```
 
-### deploy a roxie cluster
+### deploy a simple cluster
 ```sh
+cd  <build dir>/trusty/hpcc-cluster-dali
+mv config.yaml config.yaml.orig
+cp config_node.yaml config.yaml
+
 juju models | grep default
 [ $? -ne 0 ] && juju add-model default
-juju deploy <build dir>/trusty/hpccsystems-cluster-manager mgr --series trusty
+juju deploy ./hpcc-cluster-dali dali --series bionic
+juju deploy ./hpcc-cluster-node node -n 2 --series bionic
 juju status
 #juju debug-log
-juju deploy <build dir>/trusty/hpccsystems-cluster-node roxie --series trusty
-juju status
 ```
-When both are started add relation
+When 3 units (1 dali 2 nodes)  are started add relation
 ```sh
-juju add-relation mgr roxie
+juju add-relation dali node
 ```
+
+When 3 units in "joined" states run followint to stop/create envxml/fetch/start HPCC:
+```sh
+juju config dali update-envxml=$(date +"%T.%6N")
+```
+
+This uses date but any different value in "update-envxml" will work
+If everything run OK all unit should be in "HPCC.started" 
+
+The esp will be on unit: node/0
+
+You can get ip to test EclWatch:  http://<ip>:8010
+
 
 ### Debug
 ```sh
 juju debug-log
 ```
+
+For non install error you can login the unit
+to change code  
+```sh
+juju ssh <unit>
+#go to dir to fix code
+cd /var/lib/juju/agents/unit-<unit>/charm/
+```
+In another local windows:
+```sh
+juju resovled <unit>
+```
+This will allow the hook re-run
+
 
 
 ### destroy charms
