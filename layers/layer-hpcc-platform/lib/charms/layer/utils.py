@@ -108,11 +108,13 @@ def has_component(component, ip):
         if (not os.path.isfile(HPCCEnv.CONFIG_DIR + '/environment.xml')):
             return False
 
-        output = check_output([HPCCEnv.HPCC_HOME + '/sbin/configgen',
+        cmd = [HPCCEnv.HPCC_HOME + '/sbin/configgen',
                   '-env', HPCCEnv.CONFIG_DIR + '/environment.xml',
-                  '-t', component, '-listall2'], shell=True)
+                  '-t', component, '-listall2']
+        print(*cmd)
+        output = check_output(cmd)
 
-        if ip in output:
+        if ip.encode() in output:
             return True
        
     except CalledProcessError as e:
