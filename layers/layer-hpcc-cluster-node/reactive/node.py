@@ -31,6 +31,7 @@ from charms.reactive import (
 from charms.layer.hpcc_init import HPCCInit
 from charms.layer.hpcc_config import HPCCConfig
 from charms.layer.hpccenv import HPCCEnv
+from charms.layer.utils import has_component
 
 
 @when('endpoint.hpcc-node.stop-node')
@@ -72,18 +73,25 @@ def fetch_envxml():
 
     log('relation_id: ' + relation_id, INFO)
     dali_ip = hookenv.relation_get('dali-hostname', hookenv.local_unit(), relation_id)
+    if not dali_ip:
+       # Wait dali_ip retrived
+       return True
     log('dali_ip: ' + dali_ip, INFO)
+
     os.system("su hpcc -c \"scp -o StrictHostKeyChecking=no " + dali_ip + ":/etc/HPCCSystems/environment.xml /etc/HPCCSystems/\"")
 
-#    cmd = ['su', 'hpcc', '-c', '\"scp -o StrictHostKeyChecking=no ' + dali_ip + ':/etc/HPCCSystems/environment.xml /etc/HPCCSystems/\"']
 
-#    try:
-#        print(*cmd)
-#        output = check_output(cmd, shell=True)
-#    except CalledProcessError as e:
-#        log(e.output, ERROR) 
-#        #print(e.output)
-#        return False
+    # open port
+    hpcc_config =  HPCCConfig()
+    config = hookenv.config()
+    if (config['node-type'] == "esp" ):
+        hpcc_config.open_ports()
+
+    if ( (config['node-type'] == "node" )  or
+         (config['node-type'] == "support" ) ):
+         if has_component('esp', hookenv.unit_private_ip()):
+            hpcc_config.open_ports()
+
 
     clear_flag('endpoint.hpcc-node.fetch-envxml')
     clear_flag('endpoint.hpcc-node.node-wait')

@@ -34,41 +34,27 @@ class HPCCConfig (object):
     def __init__(self):
         self.config = hookenv.config()
 
-    def open_ports(self):
-        hookenv.status_set('maintenance', 'Open ports')
-        #hookenv.open_port(self.config['esp-port'], 'TCP')
-
-        #If this is esp, standalone node
-        if ( (self.config['node-type'] == "standalone" ) or
-             (self.config['node-type'] == "esp" ) ):
-            hookenv.open_port(8010, 'TCP')
-            hookenv.open_port(8002, 'TCP')
-            hookenv.open_port(8015, 'TCP')
-            hookenv.open_port(9876, 'TCP')
-
-            hookenv.open_port(18010, 'TCP')
-            hookenv.open_port(18002, 'TCP')
-            hookenv.open_port(18008, 'TCP')
-        else:
-            if has_component('esp', hookenv.unit_private_ip()):
-                hookenv.open_port(8010, 'TCP')
-                hookenv.open_port(8002, 'TCP')
-                hookenv.open_port(8015, 'TCP')
-                hookenv.open_port(9876, 'TCP')
-
-                hookenv.open_port(18010, 'TCP')
-                hookenv.open_port(18002, 'TCP')
-                hookenv.open_port(18008, 'TCP')
-            else:
-                hookenv.close_port(8010, 'TCP')
-                hookenv.close_port(8002, 'TCP')
-                hookenv.close_port(8015, 'TCP')
-                hookenv.close_port(9876, 'TCP')
-
-                hookenv.close_port(18010, 'TCP')
-                hookenv.close_port(18002, 'TCP')
-                hookenv.close_port(18008, 'TCP')
          
+    def open_ports(self):
+        hookenv.open_port(8010, 'TCP')
+        hookenv.open_port(8002, 'TCP')
+        hookenv.open_port(8015, 'TCP')
+        hookenv.open_port(9876, 'TCP')
+
+        hookenv.open_port(18010, 'TCP')
+        hookenv.open_port(18002, 'TCP')
+        hookenv.open_port(18008, 'TCP')
+
+    def close_ports(self):
+        hookenv.close_port(8010, 'TCP')
+        hookenv.close_port(8002, 'TCP')
+        hookenv.close_port(8015, 'TCP')
+        hookenv.close_port(9876, 'TCP')
+
+        hookenv.close_port(18010, 'TCP')
+        hookenv.close_port(18002, 'TCP')
+        hookenv.close_port(18008, 'TCP')
+
     def create_envxml(self, configs, ip_dir, out_file):
         node_ips_file = ip_dir + '/node'
         if os.path.isfile(node_ips_file):
@@ -103,6 +89,7 @@ class HPCCConfig (object):
     def create_default_envxml(self, configs, ip_file, out_file, 
             support_nodes, esp_nodes, roxie_nodes, thor_nodes): 
 
+        log("In create_default_envxml", INFO)
         cmd = []
         cmd.append(HPCCEnv.HPCC_HOME + '/sbin/envgen')
         cmd.extend(['-env', out_file, '-ipfile', ip_file])
@@ -156,6 +143,7 @@ class HPCCConfig (object):
         return True
 
     def create_complex_envxml(self, configs, ip_dir, out_file):
+        log ("In create_complext_envxml", INFO)
         # Dali and Support nodes
         if os.path.isfile(ip_dir + '/support'):
            support_nodes = len(open(ip_dir + '/support').readlines())
@@ -200,6 +188,7 @@ class HPCCConfig (object):
         return True
 
     def add_esp_envxml(self, configs, ip_dir, env_file):
+        log ("In add_esp_envxml", INFO)
         cmd = []
         cmd.append(HPCCEnv.HPCC_HOME + '/sbin/envgen2')
         cmd.extend(['-env-in', env_file, '-env-out', env_file])
@@ -221,6 +210,7 @@ class HPCCConfig (object):
         return True
 
     def add_roxie_envxml(self, configs, ip_dir, env_file):
+        log ("In add_roxie_envxml", INFO)
         cmd = []
         cmd.append(HPCCEnv.HPCC_HOME + '/sbin/envgen2')
         cmd.extend(['-env-in', env_file, '-env-out', env_file])
@@ -232,17 +222,14 @@ class HPCCConfig (object):
             comp, name = ip_file.split('-')            
             cmd.extend(['-add-node', comp + '#' + name + '@ipfile=' + roxie_ip_file])
             # Will deal with roxieChannelsPerSlave and roxieondemand later
-            cmd.extend(['-mod', 'sw:' + comp + '#' + name + '@copyResources=true'])
+            cmd.extend(['-mod', 'sw:' + comp + '#' + name + '@copyResources=true^channelsPerNode=1'])
 
             # Add topology. Will deal input eclagent, scheduluer and eclcc later. Probably from etcd which set in  
             # each roxie application config.yaml
-            cmd.extend(['-add-topology', 'topology:cluster@name=' + name + ':eclagent@process=myeclagent:eclscheduler@process=myeclscheduler:eclccserver@process=myeclccserver:roxie@process=' + name])
+            cmd.extend(['-add-topology', 'topology:cluster@name=' + name + ':eclscheduler@process=myeclscheduler:eclccserver@process=myeclccserver:roxie@process=' + name])
    
-       # cloud. Make sure esp done already
+        # cloud. Make sure esp done already
         if 'cloud-type' in configs and (configs['cloud-type'] == 'aws'):
-            cmd = []
-            cmd.append(HPCCEnv.HPCC_HOME + '/sbin/envgen2')
-            cmd.extend(['-env-in', out_file, '-env-out', out_file])
             cmd.extend(['-cloud', configs['cloud-type']]) 
 
         try:
@@ -254,6 +241,7 @@ class HPCCConfig (object):
         return True
 
     def add_thor_envxml(self, configs, ip_dir, env_file):
+        log ("In add_thor_envxml", INFO)
         cmd = []
         cmd.append(HPCCEnv.HPCC_HOME + '/sbin/envgen2')
         cmd.extend(['-env-in', env_file, '-env-out', env_file])

@@ -13,7 +13,6 @@ class CollectIPsFromJuju (CollectIPs):
         '''
         super(CollectIPs, self).__init__()
 
-
     def retrieveIPsFromCloud(self, input_fn):
         self.clean_dir(self._out_dir)
         with open(input_fn) as pods_ip_file:

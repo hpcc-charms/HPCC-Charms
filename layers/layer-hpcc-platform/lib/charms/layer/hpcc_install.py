@@ -71,7 +71,9 @@ class HPCCInstallation (object):
            log(' create ' +   HPCCEnv.CLUSTER_CURRENT_IPS_DIR, INFO)
            if not os.path.exists(HPCCEnv.CLUSTER_CURRENT_IPS_DIR):
               os.makedirs(HPCCEnv.CLUSTER_CURRENT_IPS_DIR)
-           try: 
+              os.system("rm " + HPCCEnv.CLUSTER_CURRENT_IPS_DIR + "/*")
+
+           try:
                output = check_output(['chmod', '-R', '777'])
                log(output, INFO)
                return True

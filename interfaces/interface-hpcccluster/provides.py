@@ -46,18 +46,21 @@ class HPCCClusterProvides(Endpoint):
             for unit in relation.units:
                 ip = unit.received['node-ip']
                 id = unit.received['node-id']
-                if ip is None or id is None: 
+                type = unit.received['node-type']
+                if ip is None or id is None or type is None:
                    result = False
                    break
                 log('node ip:' + ip, INFO) 
                 log('node id: ' + id, INFO) 
+                log('node type: ' + type, INFO)
 
                 # add/modify cluster ip file
-                update_ip_files(id, ip)
+                update_ip_files(type, id, ip)
             if not result:
                break
 
         if result:
+           self.publish_info()
            set_flag(self.expand_name('endpoint.{endpoint_name}.cluster-changed'))
 
            # clear following may not able to collect un-published nodes' ip 
