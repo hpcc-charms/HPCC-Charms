@@ -36,6 +36,8 @@ class HPCCClusterRequires(Endpoint):
         log('unit private ip: ' + hookenv.unit_private_ip(), INFO)
         relation.to_publish['node-id'] = hookenv.local_unit()
         log('unit id: ' + hookenv.local_unit(), INFO)
+        relation.to_publish['node-type'] = hookenv.config()['node-type']
+        log('unit type: ' + hookenv.config()['node-type'], INFO)
         status_set('active', hookenv.local_unit().split('/')[0] + '.joined')
         set_flag(self.expand_name('endpoint.{endpoint_name}.ip-published'))
 

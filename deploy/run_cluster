@@ -1,0 +1,21 @@
+juju models | grep default
+[ $? -ne 0 ] && juju add-model default
+
+if [  -e ~/work/build/builds/hpcc-cluster-dali/config-cluster.yaml ]
+then
+  cp ~/work/build/builds/hpcc-cluster-dali/config-cluster.yaml ~/work/build/builds/hpcc-cluster-dali/config.yaml
+fi
+
+juju deploy ./builds/hpcc-cluster-dali dali --series bionic --config cloud-type=aws
+juju deploy ./builds/hpcc-cluster-node r1  -n 1 --series bionic --config node-type=roxie --config cloud-type=aws
+juju deploy ./builds/hpcc-cluster-node support --series bionic --config node-type=support --config cloud-type=aws
+juju deploy ./builds/hpcc-cluster-node master-t1 --series bionic --config node-type=thor --config cloud-type=aws
+juju deploy ./builds/hpcc-cluster-node t1 -n 2 --series bionic --config node-type=thor --config cloud-type=aws
+#juju deploy ./builds/hpcc-cluster-node myesp --series bionic --config node-type=esp --config cloud-type=aws
+
+#juju deploy ./builds/hpcc-cluster-node thor-t1 --series bionic
+
+#juju add-relation dali-mydali roxie-r1
+#juju add-relation dali-mydali support
+
+#juju add-relation dali-mydali thor-t1

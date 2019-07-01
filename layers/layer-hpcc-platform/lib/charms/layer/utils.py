@@ -108,11 +108,13 @@ def has_component(component, ip):
         if (not os.path.isfile(HPCCEnv.CONFIG_DIR + '/environment.xml')):
             return False
 
-        output = check_output([HPCCEnv.HPCC_HOME + '/sbin/configgen',
+        cmd = [HPCCEnv.HPCC_HOME + '/sbin/configgen',
                   '-env', HPCCEnv.CONFIG_DIR + '/environment.xml',
-                  '-t', component, '-listall2'], shell=True)
+                  '-t', component, '-listall2']
+        print(*cmd)
+        output = check_output(cmd)
 
-        if ip in output:
+        if ip.encode() in output:
             return True
        
     except CalledProcessError as e:
@@ -120,13 +122,21 @@ def has_component(component, ip):
 
     return False
 
-def update_ip_files(unit_id, ip, dir=None):
+def update_ip_files(type, unit_id, ip, dir=None):
 
     out_dir = dir
     if not out_dir:
        out_dir = HPCCEnv.CLUSTER_CURRENT_IPS_DIR 
 
-    ip_file_name = out_dir + '/' +  unit_id.split('/')[0]
+    if type == 'node':
+       ip_file_name = out_dir + '/' + unit_id.split('/')[0]
+    elif type == 'support':
+       ip_file_name = out_dir + '/support'
+    elif type == 'thor' and unit_id.split('/')[0].startswith('master-'):
+       ip_file_name = out_dir + '/' + type + unit_id.split('/')[0]
+    else:
+       ip_file_name = out_dir + '/' + type + '-' +  unit_id.split('/')[0]
+
     units_and_ips = out_dir + '/units_and_ips'
     
     open(ip_file_name, 'a').close()
@@ -136,7 +146,7 @@ def update_ip_files(unit_id, ip, dir=None):
     current_ip = ''
     with open (units_and_ips) as file:
        for line in file:
-         line_unit_id, line_ip = line.split()
+         line_type, line_unit_id, line_ip = line.split()
          if line_unit_id == unit_id:
             if ip == line_ip:
                return False
@@ -146,7 +156,7 @@ def update_ip_files(unit_id, ip, dir=None):
                break
             
     if result == 'UNIT-NOT-FOUND':
-       write_unit_and_ip_to_file(units_and_ips, unit_id, ip)
+       write_unit_and_ip_to_file(units_and_ips, type, unit_id, ip)
        write_ip_to_file(ip_file_name, ip)
     elif result == 'IP-NOT-FOUND':
        replace_str_in_file(units_and_ips, current_ip, ip)
@@ -156,13 +166,13 @@ def update_ip_files(unit_id, ip, dir=None):
 
 def write_ip_to_file(file_name, ip, mode='a'):
     f_ips = open(file_name, mode)
-    f_ips.write(ip + ";\n")   
+    f_ips.write(ip + ";\n")
     f_ips.close()
     return True
 
-def write_unit_and_ip_to_file(file_name, unit_id, ip, mode='a'):
+def write_unit_and_ip_to_file(file_name, type, unit_id, ip, mode='a'):
     f_ips = open(file_name, mode)
-    f_ips.write(unit_id + ' ' + ip + "\n")   
+    f_ips.write(type + ' ' + unit_id + ' ' + ip + "\n")
     f_ips.close()
     return True
 

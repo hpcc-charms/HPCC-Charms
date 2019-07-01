@@ -71,8 +71,10 @@ class HPCCInstallation (object):
            log(' create ' +   HPCCEnv.CLUSTER_CURRENT_IPS_DIR, INFO)
            if not os.path.exists(HPCCEnv.CLUSTER_CURRENT_IPS_DIR):
               os.makedirs(HPCCEnv.CLUSTER_CURRENT_IPS_DIR)
-           try: 
-               output = check_output(['chmod', '-R', '777'], shell=True)
+              os.system("rm " + HPCCEnv.CLUSTER_CURRENT_IPS_DIR + "/*")
+
+           try:
+               output = check_output(['chmod', '-R', '777'])
                log(output, INFO)
                return True
            except CalledProcessError as e:
@@ -170,7 +172,7 @@ class InstallationBasic (object):
               charm_dir = hookenv.charm_dir()
               cmd =  charm_dir + '/dependencies/' + platform.linux_distribution()[2] + '/' + additional_install
               try: 
-                 output = check_output([cmd, 'status'], shell=True)
+                 output = check_output([cmd, 'status'])
                  log(output, INFO)
                  return True
               except CalledProcessError as e:

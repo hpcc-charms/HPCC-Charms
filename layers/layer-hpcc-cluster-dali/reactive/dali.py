@@ -32,14 +32,16 @@ from charms.layer.hpcc_init import HPCCInit
 from charms.layer.hpcc_config import HPCCConfig
 from charms.layer.hpccenv import HPCCEnv
 
-@when('endpoint.hpcc-dali.joined')
-@when_not('endpoint.hpcc-dali.dali-published')
-def publish_dali_server(self):
-    dali_server = endpoint_from_flag('endpoint.hpcc-dali.joined')
-    dali_server.publish_info()
-    status_set('maintenance','dali.joined')
-    set_flag('endpoint.hpcc-dali.dali-published')
-    return True
+#This is only OK for the first add-relation
+#Shoud do this in node-ip changed
+#@when('endpoint.hpcc-dali.joined')
+#@when_not('endpoint.hpcc-dali.dali-published')
+#def publish_dali_server(self):
+#    dali_server = endpoint_from_flag('endpoint.hpcc-dali.joined')
+#    dali_server.publish_info()
+#    status_set('maintenance','dali.joined')
+#    set_flag('endpoint.hpcc-dali.dali-published')
+#    return True
 
 @when('endpoint.hpcc-dali.cluster-changed')
 @when_not('endpoint.hpcc-dali.changed.node-ip')
@@ -71,10 +73,16 @@ def update_env():
 
     hpcc_config = HPCCConfig()
     config = hookenv.config()
-    hpcc_config.create_envxml(config, HPCCEnv.CLUSTER_CURRENT_IPS_DIR, 
+    rc = hpcc_config.create_envxml(config, HPCCEnv.CLUSTER_CURRENT_IPS_DIR,
         HPCCEnv.CONFIG_DIR + '/' + HPCCEnv.ENV_XML_FILE) 
 
+
     clear_flag('endpoint.hpcc-dali.update-env')
+    if not rc:
+       status_set('blocked','env.updated.err')
+       log('Create environment.xml error', ERROR)
+       return False
+
     set_flag('endpoint.hpcc-dali.env-updated')
     status_set('maintenance','env.updated')
 

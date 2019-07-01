@@ -42,8 +42,10 @@ def install_platform():
     #if config['ssh-key-private']:
     #    install_keys_from_config(config)
 
-    hpcc_config = HPCCConfig()
-    hpcc_config.open_ports()
+    config = hookenv.config()
+    if (config['node-type'] == "standalone" ):
+        hpcc_config = HPCCConfig()
+        hpcc_config.open_ports()
 
     set_state('platform.installed')
 
