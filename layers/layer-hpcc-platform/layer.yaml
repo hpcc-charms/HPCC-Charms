@@ -1,2 +1,3 @@
 includes:
   - 'layer:basic'
+  - 'layer:metrics'
