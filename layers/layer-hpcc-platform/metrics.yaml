@@ -1,0 +1,41 @@
+metrics:
+  dali:
+    type: gauge
+    description: Returns the status of dali
+    command: scripts/mydali
+  dalifilesrv:
+    type: gauge
+    description: Returns the status of dalifilesrv
+    command: scripts/mydalisrv
+  dfuserver:
+    type: gauge
+    description: Returns the status of dfuserver
+    command: scripts/mydfuserver
+  eclagent:
+    type: gauge
+    description: Returns the status of eclagent
+    command: scripts/myeclagent
+  eclccserver:
+    type: gauge
+    description: Returns the status of eclccserver
+    command: scripts/myeclccserver
+  eclscheduler:
+    type: gauge
+    description: Returns the status of eclscheduler
+    command: scripts/myeclscheduler
+  esp:
+    type: gauge
+    description: Returns the status of esp
+    command: scripts/myesp
+  roxie:
+    type: gauge
+    description: Returns the status of roxie
+    command: scripts/myroxie
+  sasha:
+    type: gauge
+    description: Returns the status of sasha
+    command: scripts/mysasha
+  thor:
+    type: gauge
+    description: Returns the status of thor
+    command: scripts/mythor

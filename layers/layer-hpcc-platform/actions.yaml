@@ -1,0 +1,4 @@
+hpcc-start:
+  description: start HPCC
+hpcc-stop:
+  description: stop HPCC

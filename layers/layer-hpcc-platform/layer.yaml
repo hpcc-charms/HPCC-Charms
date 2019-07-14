@@ -1,3 +1,4 @@
 includes:
   - 'layer:basic'
   - 'interface:mysql'
+  - 'layer:metrics'
