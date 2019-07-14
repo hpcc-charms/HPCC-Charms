@@ -38,11 +38,11 @@ subordinate: false
 #    interface: tcp
 #    optional:  true
 
-#requires:
+requires:
 #   couchbase-embed:
 #     interface: couchbase 
 #     optional: true
 
-#   redis-embed:
-#     interface: redis 
-#     optional: true
+    mysql-db:
+      interface: mysql
+      optional: true

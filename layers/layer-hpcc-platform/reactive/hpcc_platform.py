@@ -108,11 +108,11 @@ def start_platform():
     remove_state('platform.start.failed')
     hpcc_init = HPCCInit()
     if hpcc_init.start():
-       set_state('platform.start.failed')
-       hookenv.status_set('blocked', 'hpcc start failed')
-    else:
        set_state('platform.started')
        hookenv.status_set('active', 'started')
+    else:
+       set_state('platform.start.failed')
+       hookenv.status_set('blocked', 'hpcc start failed')
 
 #@when('hpcc-esp.available')     
 #def configure_esp(http):
