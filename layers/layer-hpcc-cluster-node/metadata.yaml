@@ -1,5 +1,5 @@
-name: hpcc-platform
-summary: HPCC (High Performance Computing Cluster)
+name: hpcc-cluster-node
+summary: HPCC (High Performance Computing Cluster) Cluster Node
 maintainers:
    -  hpcc-systems <hpcc-systems@lexisnexis.com>
 description: |
@@ -23,26 +23,13 @@ series:
    - bionic
 
 tags:
-    - big_data
-
-
+  - big_data
 
 subordinate: false
 
-#provides:
-#  hpcc-esp:
-#    interface: http
-#    optional:  true
-
-#  hpcc-eclcc:
-#    interface: tcp
-#    optional:  true
-
 requires:
-#   couchbase-embed:
-#     interface: couchbase 
-#     optional: true
+  hpcc-node:
+    interface: hpcccluster
 
-    mysql-db:
-      interface: mysql
-      optional: true
+
+

@@ -1,0 +1,3 @@
+includes:
+  - 'layer:hpcc-platform'
+  - 'interface:hpcccluster'

@@ -2,7 +2,7 @@ options:
 
   platform-version:
     type: string
-    default: 7.2.8-1
+    default: 7.2.22-1
     description: HPCCSystems Platform  package version
 
   platform-type:
@@ -15,7 +15,12 @@ options:
   node-type:
     type: string
     default: standalone
-    description: standalone, dali, roxie, thor, esp, support, etc
+    description: standalone, dali, roxie, thor, esp, support, node etc
+
+  cloud-type:
+    type: string
+    default: ""
+    description: Cloud environment - "",  aws
 
   base-url:
     type: string
@@ -35,12 +40,12 @@ options:
            http://hpccsystems.com/download
       If the default value is empty string, checking is skipped.
 
-  javaembed-version:
+  mysqlembed-version:
     type: string
-    default: 7.2.8-1
-    description: HPCCSystems Javaembed Pluin package version
+    default: 7.2.22-1
+    description: HPCCSystems MySQLembed Pluin package version
 
-  javaembed-checksum:
+  mysqlembed-checksum:
     type: string
     default: ""
     description: checksum

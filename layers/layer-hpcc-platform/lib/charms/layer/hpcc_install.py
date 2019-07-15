@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import os
+import os,stat
 import platform
 import yaml
 import re
@@ -9,7 +9,7 @@ import re
 # python 3
 #import Configparser
 from subprocess import check_call,check_output,CalledProcessError
- 
+
 from charmhelpers import fetch
 from charmhelpers.core import host
 from charmhelpers.core import hookenv
@@ -36,7 +36,7 @@ from charmhelpers.fetch.archiveurl import (
 )
 
 #import charm.apt
-   
+
 class HPCCInstallation (object):
 
     def __init__(self):
@@ -45,17 +45,43 @@ class HPCCInstallation (object):
 
     def install(self):
         platform_version = self.config['platform-version']
-        if not platform_version:        
+        if not platform_version:
            return 1
         platform_install = PlatformInstallation()
         platform_install.install("platform", "platform", platform_version)
         
         # Install plugins
+        plugins_install = PluginsInstallation()
+        plugins_install.install_all()
 
-        # Install modules
 
+        # Install modules: ganglia-monitoring, nagios-monitoring
+        # module_install = ModuleInstalltion()
+        # for each module in list
+        #    if <module-version> definedin config.yaml
+        #       module_install.install("<module name>","<module name>", <plugin_version>)
 
-class InstallationBase (object):
+        # Install additonal prerequisites
+        basic_install =  InstallationBasic()
+        basic_install.additional_prerequisites()
+
+        if self.config['node-type'] == 'dali':
+           log(' create ' +   HPCCEnv.CLUSTER_CURRENT_IPS_DIR, INFO)
+           if not os.path.exists(HPCCEnv.CLUSTER_CURRENT_IPS_DIR):
+              os.makedirs(HPCCEnv.CLUSTER_CURRENT_IPS_DIR)
+              os.system("rm " + HPCCEnv.CLUSTER_CURRENT_IPS_DIR + "/*")
+
+           try:
+               output = check_output(['chmod', '-R', '777'])
+               log(output, INFO)
+               return True
+           except CalledProcessError as e:
+               log(e.output, INFO)
+               return False
+
+           #os.chmod(HPCCEnv.CLUSTER_CURRENT_IPS_DIR, stat.S_IWOTH)
+
+class InstallationBasic (object):
     def __init__(self):
 
         super().__init__()
@@ -69,9 +95,9 @@ class InstallationBase (object):
         self.version = version
         self.package_type = package_type
 
-        self.install_prerequisites() 
+        self.install_prerequisites(self.name) 
         self.install_package()
-        
+
         #self.nodes = {}
 
     def get_package_name(self):
@@ -98,12 +124,14 @@ class InstallationBase (object):
         dest_file = "/tmp/" + package
         aufh.download(url, dest_file)
         fetch.apt_update()
-        checksum = self.config[self.name + '-checksum']
-        if checksum:
-            hash_type = self.config['hash-type']
-            if not hash_type:
-                hash_type = 'md5'
-            host.check_hash(dest_file, checksum, hash_type)
+        checksum_key = self.name + '-checksum'
+        if checksum_key in self.config:
+           checksum = self.config[self.name + '-checksum']
+           if checksum:
+              hash_type = self.config['hash-type']
+              if not hash_type:
+                 hash_type = 'md5'
+              host.check_hash(dest_file, checksum, hash_type)
         return dest_file
 
     def get_installed_package_name(self):
@@ -111,27 +139,52 @@ class InstallationBase (object):
 
     def uninstall(self):
         hookenv.status_set('maintenance', 'Uninstalling ' + self.name)
-        uninstall_cmd = package_uninstall_cmd() + " " + self.get_installed_package_name() 
+        uninstall_cmd = package_uninstall_cmd() + " " + self.get_installed_package_name()
         check_call(dpkg_uninstall_platform_deb.split(), shell=False)
 
-    def install_prerequisites(self):
+    def install_additional_prerequistites(self):
+        pass
+
+    def install_prerequisites(self, name):
         charm_dir = hookenv.charm_dir()
 
-        prereq_dir =  charm_dir + '/dependencies/' + platform.linux_distribution()[2] 
-        with open(os.path.join(prereq_dir, self.name + '.yaml')) as fp:
+        prereq_dir =  charm_dir + '/dependencies/' + platform.linux_distribution()[2]
+        with open(os.path.join(prereq_dir, name + '.yaml')) as fp:
             workload = yaml.safe_load(fp)
         packages = workload['packages']
         hookenv.status_set('maintenance', 'Installing prerequisites')
 
-        batch_install(packages)
+        return batch_install(packages)
+
+    def additional_prerequisites(self):
+        if 'additional-packages' in self.config:
+           additional_packages = self.config['additional-packages']
+           if additional_packages:
+              rc = self.install_prerequisites(additional_packages)
+              if rc != True:
+                 return False
+
+        if 'additional-install' in self.config:
+           additional_install = self.config['additional-install']
+           if additional_install:
+              charm_dir = hookenv.charm_dir()
+              cmd =  charm_dir + '/dependencies/' + platform.linux_distribution()[2] + '/' + additional_install
+              try:
+                 output = check_output([cmd, 'status'])
+                 log(output, INFO)
+                 return True
+              except CalledProcessError as e:
+                 log(e.output, INFO)
+                 return False
+
+        return True
 
 
-class PlatformInstallation (InstallationBase):
+class PlatformInstallation (InstallationBasic):
 
     def __init__(self):
-        InstallationBase.__init__(self)
+        InstallationBasic.__init__(self)
 
-        
     def get_package_name(self):
         hpcc_type = self.config['platform-type']
         full_hpcc_type = {"CE":"community", "EE":"enterprise", "LN":"internal"}
@@ -157,7 +210,7 @@ class PlatformInstallation (InstallationBase):
     #    except CalledProcessError:
     #         return ['','','','']
 
-    def install_prerequisites(self):
+    def install_prerequisites(self, name=None):
         hookenv.status_set('maintenance', 'Installing prerequisites')
         charm_dir = hookenv.charm_dir()
 
@@ -176,3 +229,25 @@ class PlatformInstallation (InstallationBase):
                 workload = yaml.safe_load(fp)
             packages.extend(workload['packages'])
         return batch_install(packages)
+
+
+class PluginsInstallation (InstallationBasic):
+
+    def __init__(self):
+        InstallationBasic.__init__(self)
+
+
+    def install_all(self):
+
+        plugins = ['mysqlembed', 'javaembed', 'kafka', 'redis', 'couchbaseembed']
+        for plugin in plugins:
+           version = plugin + '-version'
+           if version in self.config:
+              plugin_version = self.config[version]
+           else:
+              continue
+           self.install(plugin, 'plugins', plugin_version)
+
+    def get_package_name(self):
+        return "hpccsystems-plugin-" + self.name + "_" +  \
+               self.version + package_extension()

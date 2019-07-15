@@ -1,0 +1,8 @@
+#juju models | grep default
+#[ $? -ne 0 ] && juju add-model default
+
+juju add-relation dali r1:hpcc-node
+juju add-relation dali support:hpcc-node
+#juju add-relation dali myesp:hpcc-node
+juju add-relation dali master-t1:hpcc-node
+juju add-relation dali t1:hpcc-node

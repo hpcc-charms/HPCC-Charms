@@ -1,0 +1,16 @@
+options:
+
+  node-type:
+    type: string
+    default: node
+    description: standalone, dali, roxie, thor, esp, support, node, etc
+
+  additional-packages:
+    type: string
+    default: node
+    description: prefix of file name (.yaml) which contain additional prerequisites package list
+
+  additional-install:
+    type: string
+    default: node.sh
+    description: shell script to install or configure this charm.

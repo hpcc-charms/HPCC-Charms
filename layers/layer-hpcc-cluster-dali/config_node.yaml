@@ -1,0 +1,97 @@
+"options":
+
+  "platform-version":
+    "type": "string"
+    "default": "7.2.8-1"
+    "description": "HPCCSystems Platform  package version"
+
+  "platform-type":
+    "type": "string"
+    "default": "CE"
+    "description": |
+      HPCC Platform has three types: community (CE), enterprise(EE),
+      internal(LN). EE and LN are for private use only.
+
+  "node-type":
+    "type": "string"
+    "default": "dali"
+    "description": "standalone, dali, roxie, thor, esp, support, node, etc"
+
+  "cloud-type":
+    "type": "string"
+    "default": ""
+    "description":
+
+  "base-url":
+    "type": "string"
+    "default": "http://wpc.423a.rhocdn.net/00423A/releases"
+    #default: http://10.240.32.242/builds
+    "description": |
+      This is the base URL to download HPCC Platform package.
+      To use HPCC Platform community beta version set it to
+      http://cdn.hpccsystems.com/beta
+
+  "platform-checksum":
+    "type": "string"
+    "default": ""
+    "description": |
+      HPCC package checksum. The default value is for HPCC CE 5.4.6-1 Ubuntu
+      14.04 amd64. You can get other package checksums from:
+           http://hpccsystems.com/download
+      If the default value is empty string, checking is skipped.
+
+  "javaembed-version":
+    "type": "string"
+    "default": "7.2.8-1"
+    "description": "HPCCSystems Javaembed Pluin package version"
+
+  "javaembed-checksum":
+    "type": "string"
+    "default": ""
+    "description": "checksum"
+
+  "hash-type":
+    "type": "string"
+    "default": "md5"
+    "description": "hask type for checksum such as md5, sha1, sha256, sha512, etc"
+
+  "ssh-key-public":
+    "type": "string"
+    "default": ""
+    "description": "The content of public SSH Key"
+
+  "ssh-key-private":
+    "type": "string"
+    "default": ""
+    "description": "The content of private SSH Key"
+  "auto-envxml":
+    "type": "boolean"
+    "default": !!bool "false"
+    "description": "automatically generate environment.xml"
+
+  "update-envxml":
+    "type": "string"
+    "default": ""
+    "description": "when this option changed charm will update environment.xml"
+
+  "additional-packages":
+    "type": "string"
+    "default": "dali"
+    "description": "prefix of file name (.yaml) which contain additional prerequisites\
+      \ package list"
+
+  "additional-install":
+    "type": "string"
+    "default": "dali.sh"
+    "description": "shell script to install or configure this charm."
+
+  "support-nodes":
+    "type": "int"
+    "default": "1"
+    "description": "HPCC cluster support node number"
+
+  "roxie-nodes":
+    "type": "int"
+    "default": "1"
+    "description": "HPCC cluster roxie node number"
+

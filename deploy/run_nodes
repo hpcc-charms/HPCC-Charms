@@ -1,0 +1,9 @@
+juju models | grep default
+[ $? -ne 0 ] && juju add-model default
+if [ ! -e ~/work/build/builds/hpcc-cluster-dali/config-cluster.yaml ]
+then
+  cp ~/work/build/builds/hpcc-cluster-dali/config.yaml ~/work/build/builds/hpcc-cluster-dali/config-cluster.yaml
+fi
+cp ~/tmp/config_node.yaml ~/work/build/builds/hpcc-cluster-dali/config.yaml
+juju deploy ./builds/hpcc-cluster-dali dali --series bionic
+juju deploy ./builds/hpcc-cluster-node node -n 3 --series bionic
