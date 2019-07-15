@@ -9,7 +9,7 @@ import re
 # python 3
 #import Configparser
 from subprocess import check_call,check_output,CalledProcessError
- 
+
 from charmhelpers import fetch
 from charmhelpers.core import host
 from charmhelpers.core import hookenv
@@ -36,7 +36,7 @@ from charmhelpers.fetch.archiveurl import (
 )
 
 #import charm.apt
-   
+
 class HPCCInstallation (object):
 
     def __init__(self):
@@ -45,28 +45,26 @@ class HPCCInstallation (object):
 
     def install(self):
         platform_version = self.config['platform-version']
-        if not platform_version:        
+        if not platform_version:
            return 1
         platform_install = PlatformInstallation()
         platform_install.install("platform", "platform", platform_version)
         
         # Install plugins
-        # plugin_install = PluginInstalltion()        
-        # for each plugin in list
-        #    if <pluin-version> definedin config.yaml 
-        #       plugin_install.install("<plugin name>","plugin", <plugin_version>)
+        plugins_install = PluginsInstallation()
+        plugins_install.install_all()
 
 
         # Install modules: ganglia-monitoring, nagios-monitoring
-        # module_install = ModuleInstalltion()        
+        # module_install = ModuleInstalltion()
         # for each module in list
-        #    if <module-version> definedin config.yaml 
+        #    if <module-version> definedin config.yaml
         #       module_install.install("<module name>","<module name>", <plugin_version>)
 
         # Install additonal prerequisites
         basic_install =  InstallationBasic()
         basic_install.additional_prerequisites()
-        
+
         if self.config['node-type'] == 'dali':
            log(' create ' +   HPCCEnv.CLUSTER_CURRENT_IPS_DIR, INFO)
            if not os.path.exists(HPCCEnv.CLUSTER_CURRENT_IPS_DIR):
@@ -99,7 +97,7 @@ class InstallationBasic (object):
 
         self.install_prerequisites(self.name) 
         self.install_package()
-        
+
         #self.nodes = {}
 
     def get_package_name(self):
@@ -141,7 +139,7 @@ class InstallationBasic (object):
 
     def uninstall(self):
         hookenv.status_set('maintenance', 'Uninstalling ' + self.name)
-        uninstall_cmd = package_uninstall_cmd() + " " + self.get_installed_package_name() 
+        uninstall_cmd = package_uninstall_cmd() + " " + self.get_installed_package_name()
         check_call(dpkg_uninstall_platform_deb.split(), shell=False)
 
     def install_additional_prerequistites(self):
@@ -150,7 +148,7 @@ class InstallationBasic (object):
     def install_prerequisites(self, name):
         charm_dir = hookenv.charm_dir()
 
-        prereq_dir =  charm_dir + '/dependencies/' + platform.linux_distribution()[2] 
+        prereq_dir =  charm_dir + '/dependencies/' + platform.linux_distribution()[2]
         with open(os.path.join(prereq_dir, name + '.yaml')) as fp:
             workload = yaml.safe_load(fp)
         packages = workload['packages']
@@ -171,7 +169,7 @@ class InstallationBasic (object):
            if additional_install:
               charm_dir = hookenv.charm_dir()
               cmd =  charm_dir + '/dependencies/' + platform.linux_distribution()[2] + '/' + additional_install
-              try: 
+              try:
                  output = check_output([cmd, 'status'])
                  log(output, INFO)
                  return True
@@ -186,7 +184,7 @@ class PlatformInstallation (InstallationBasic):
 
     def __init__(self):
         InstallationBasic.__init__(self)
-        
+
     def get_package_name(self):
         hpcc_type = self.config['platform-type']
         full_hpcc_type = {"CE":"community", "EE":"enterprise", "LN":"internal"}
@@ -232,3 +230,24 @@ class PlatformInstallation (InstallationBasic):
             packages.extend(workload['packages'])
         return batch_install(packages)
 
+
+class PluginsInstallation (InstallationBasic):
+
+    def __init__(self):
+        InstallationBasic.__init__(self)
+
+
+    def install_all(self):
+
+        plugins = ['mysqlembed', 'javaembed', 'kafka', 'redis', 'couchbaseembed']
+        for plugin in plugins:
+           version = plugin + '-version'
+           if version in self.config:
+              plugin_version = self.config[version]
+           else:
+              continue
+           self.install(plugin, 'plugins', plugin_version)
+
+    def get_package_name(self):
+        return "hpccsystems-plugin-" + self.name + "_" +  \
+               self.version + package_extension()
