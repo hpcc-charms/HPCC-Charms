@@ -24,7 +24,7 @@ class HPCCClusterRequires(Endpoint):
               'endpoint.{endpoint_name}.changed.port')
     def new_cluster_dali(self): 
         self.cluster_dali()
-        set_flag(self.expand_name('endpoint.{endpoint_name}.new-cluster-dali'))
+        set_flag(self.expand_name('endpoint.{endpoint_name}.dali-available'))
         clear_flag(self.expand_name('endpoint.{endpoint_name}.changed.hostname'))
         clear_flag(self.expand_name('endpoint.{endpoint_name}.changed.port'))
 
@@ -43,7 +43,7 @@ class HPCCClusterRequires(Endpoint):
 
     @when_not('endpoint.{endpoint_name}.joined')
     def broken(self):
-        clear_flag(self.expand_name('endpoint.{endpoint_name}.new-cluster-dali'))
+        clear_flag(self.expand_name('endpoint.{endpoint_name}.dali-available'))
 
     def cluster_dali(self):
         # Only one cluster dali unit at remote side
@@ -58,11 +58,6 @@ class HPCCClusterRequires(Endpoint):
            'dali-relation-id': relation.relation_id,
         })
 
-    #       'dali-unit_name': unit.unit_name
-   
-    #def publish_node_type(self, type):
-    #    relation = self.relations[0]
-    #    relation.to_publish['node-type'] = type
 
     @when('endpoint.{endpoint_name}.changed.cluster-action')
     def new_action(self):
@@ -83,23 +78,22 @@ class HPCCClusterRequires(Endpoint):
         relation.to_publish[name] = value 
 
     @when('endpoint.{endpoint_name}.node-stopped')
-    @when_not('endpoint.{endpoint_name}.node-wait')
     def process_node_stopped(self): 
         log('Publish node-state relation data: stopped', INFO)
         self.publish_relation_data('node-state', 'stopped') 
-        set_flag(self.expand_name('endpoint.{endpoint_name}.node-wait'))
+        #set_flag(self.expand_name('endpoint.{endpoint_name}.node-wait'))
+        clear_flag(self.expand_name('endpoint.{endpoint_name}.node-stopped'))
 
     @when('endpoint.{endpoint_name}.node-started')
-    @when_not('endpoint.{endpoint_name}.node-wait')
     def process_node_started(self): 
         log('Publish node-state relation data: started', INFO)
         self.publish_relation_data('node-state', 'started') 
-        set_flag(self.expand_name('endpoint.{endpoint_name}.node-wait'))
+        #set_flag(self.expand_name('endpoint.{endpoint_name}.node-wait'))
+        clear_flag(self.expand_name('endpoint.{endpoint_name}.node-started'))
 
 
     @when('endpoint.{endpoint_name}.envxml-fetched')
-    @when_not('endpoint.{endpoint_name}.node-wait')
     def process_envxml_fetched(self): 
         log('Publish node-state relation data: envxml-fetched', INFO)
         self.publish_relation_data('node-state', 'envxml-fetched') 
-        set_flag(self.expand_name('endpoint.{endpoint_name}.node-wait'))
+        clear_flag(self.expand_name('endpoint.{endpoint_name}.envxml-fetched'))
