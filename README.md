@@ -31,6 +31,7 @@ lxc network set lxdbr0 ipv6.address none
 ```sh
  lxc network get lxdbr0 ipv4.address
  juju bootstrap localhost lxd-test
+ juju bootstrap aws aws-test
 ```
 ### deploy platform charm
 ```sh

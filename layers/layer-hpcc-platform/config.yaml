@@ -24,7 +24,7 @@ options:
 
   base-url:
     type: string
-    default: http://wpc.423a.rhocdn.net/00423A/releases
+    default: https://d2wulyp08c6njk.cloudfront.net/releases
     #default: http://10.240.32.242/builds
     description: | 
       This is the base URL to download HPCC Platform package.

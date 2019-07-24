@@ -66,39 +66,32 @@ class HPCCClusterProvides(Endpoint):
            # clear following may not able to collect un-published nodes' ip 
            clear_flag(self.expand_name('endpoint.{endpoint_name}.changed.node-ip'))
            clear_flag(self.expand_name('endpoint.{endpoint_name}.changed.node-id'))
-        
+           clear_flag(self.expand_name('endpoint.{endpoint_name}.update-env'))
 
-    #@when_any('endpoint.{endpoint_name}.changed.dali-state')
-    #def new_dali_state(self):
-    #    set_flag(self.expand_name('endpoint.{endpoint_name}.new-dali-state'))
-    #    clear_flag(self.expand_name('endpoint.{endpoint_name}.changed.dali-state'))
+           # clear all wait states
+           clear_flag(self.expand_name('endpoint.{endpoint_name}.changed.node-state'))
+           clear_flag(self.expand_name('endpoint.{endpoint_name}.wait-nodes-stopped'))
+           clear_flag(self.expand_name('endpoint.{endpoint_name}.wait-nodes-started'))
+           clear_flag(self.expand_name('endpoint.{endpoint_name}.wait-fetch-envxml'))
 
-    #def get_dali_state(self):
-    #    dali_state = []
-    #
-    #    # If admin unit save dali unit info following loop is un-necessary
-    #    # Still need to find api can get received data from remote_unit_name, etc
-    #    for relation in self.relations:
-    #        done = False
-    #        for unit in relation.units:
-    #            node_type = unit.received['node-type']
-    #            if (node_type == "dali"): 
-    #                state = unit.received['dali-state'],
-    #                dali_state['state'] =  state,
-    #                dali_state['relation_id'] =  relation.relation_id,
-    #                dali_state['remote_unit_name'] =  unit.unit_name
-    #                done = True
-    #            else:
-    #                continue
-    #        if done:
-    #           break
-    #    return dali_state
+           # clear all actions
+           clear_flag(self.expand_name('endpoint.{endpoint_name}.stopping-cluster'))
+           clear_flag(self.expand_name('endpoint.{endpoint_name}.starting-cluster'))
+           clear_flag(self.expand_name('endpoint.{endpoint_name}.action-in-progress'))
+           clear_flag(self.expand_name('endpoint.{endpoint_name}.fetch-envxml'))
+
+           #clear related states
+           clear_flag(self.expand_name('endpoint.{endpoint_name}.cluster-stopped'))
+           clear_flag(self.expand_name('endpoint.{endpoint_name}.cluster-started'))
+           clear_flag(self.expand_name('endpoint.{endpoint_name}.nodes-started'))
+           clear_flag(self.expand_name('endpoint.{endpoint_name}.nodes-stopped'))
+
 
     @when('endpoint.{endpoint_name}.changed.node-state')
     @when('endpoint.{endpoint_name}.wait-nodes-stopped')
-    @when_not('endpoint.{endpoint_name}.nodes-stopped')
+    #@when_not('endpoint.{endpoint_name}.nodes-stopped')
     def process_stop_nodes(self):
-        log('All nodes state changee', INFO)
+        log('Check if all nodes state changed', INFO)
         units_data = self.get_relation_data('node-state')
         all_nodes_stopped = True
         for unit_data in units_data:
@@ -114,6 +107,8 @@ class HPCCClusterProvides(Endpoint):
 
         if all_nodes_stopped:
            set_flag(self.expand_name('endpoint.{endpoint_name}.nodes-stopped'))
+           clear_flag(self.expand_name('endpoint.{endpoint_name}.action-in-progress'))
+           #clear_flag(self.expand_name('endpoint.{endpoint_name}.wait-nodes-stopped'))
            clear_flag(self.expand_name('endpoint.{endpoint_name}.changed.node-state'))
 
 
@@ -138,24 +133,32 @@ class HPCCClusterProvides(Endpoint):
     
 
     @when('endpoint.{endpoint_name}.stopping-cluster')
+    @when_not('endpoint.{endpoint_name}.action-in-progress')
     def stop_cluster(self):
         self.publish_relation_data('cluster-action', 'stop-node') 
         clear_flag(self.expand_name('endpoint.{endpoint_name}.stopping-cluster'))
+        set_flag(self.expand_name('endpoint.{endpoint_name}.action-in-progress'))
+        #set_flag(self.expand_name('endpoint.{endpoint_name}.wait-nodes-stopped'))
 
     @when('endpoint.{endpoint_name}.starting-cluster')
+    @when_not('endpoint.{endpoint_name}.action-in-progress')
     def start_cluster(self):
         self.publish_relation_data('cluster-action', 'start-node') 
         clear_flag(self.expand_name('endpoint.{endpoint_name}.starting-cluster'))
-        #clear_flag('endpoint.{endpoint_name}.starting-cluster')
+        set_flag(self.expand_name('endpoint.{endpoint_name}.action-in-progress'))
+        set_flag(self.expand_name('endpoint.{endpoint_name}.wait-nodes-started'))
 
     @when('endpoint.{endpoint_name}.fetch-envxml')
+    @when_not('endpoint.{endpoint_name}.action-in-progress')
     def fetch_envxml(self):
         self.publish_relation_data('cluster-action', 'fetch-envxml') 
         clear_flag(self.expand_name('endpoint.{endpoint_name}.fetch-envxml'))
+        set_flag(self.expand_name('endpoint.{endpoint_name}.action-in-progress'))
+        set_flag(self.expand_name('endpoint.{endpoint_name}.wait-fetch-envxml'))
 
     @when('endpoint.{endpoint_name}.changed.node-state')
     @when('endpoint.{endpoint_name}.wait-fetch-envxml')
-    @when_not('endpoint.{endpoint_name}.envxml-fetched')
+    #@when_not('endpoint.{endpoint_name}.envxml-fetched')
     def process_fetch_envxml(self):
         units_data = self.get_relation_data('node-state')
         all_nodes_fetched_envxml = True
@@ -171,13 +174,14 @@ class HPCCClusterProvides(Endpoint):
 
         if all_nodes_fetched_envxml:
            clear_flag(self.expand_name('endpoint.{endpoint_name}.changed.node-state'))
+           clear_flag(self.expand_name('endpoint.{endpoint_name}.action-in-progress'))
            set_flag(self.expand_name('endpoint.{endpoint_name}.envxml-fetched'))
 
     @when('endpoint.{endpoint_name}.changed.node-state')
     @when('endpoint.{endpoint_name}.wait-nodes-started')
-    @when_not('endpoint.{endpoint_name}.nodes-started')
+    #@when_not('endpoint.{endpoint_name}.nodes-started')
     def process_start_nodes(self):
-        log('All nodes state changee', INFO)
+        log('Check if all nodes state changed', INFO)
         units_data = self.get_relation_data('node-state')
         all_nodes_started = True
         for unit_data in units_data:
@@ -193,4 +197,5 @@ class HPCCClusterProvides(Endpoint):
 
         if all_nodes_started:
            clear_flag(self.expand_name('endpoint.{endpoint_name}.changed.node-state'))
+           clear_flag(self.expand_name('endpoint.{endpoint_name}.action-in-progress'))
            set_flag(self.expand_name('endpoint.{endpoint_name}.nodes-started'))

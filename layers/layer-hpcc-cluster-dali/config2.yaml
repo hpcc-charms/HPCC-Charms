@@ -24,23 +24,3 @@ options:
     type: string
     default: dali.sh
     description: shell script to install or configure this charm.
-
-  support-nodes:
-    type: int
-    default: 1
-    description: HPCC cluster support node number
-
-  roxie-nodes:
-    type: int
-    default: 1
-    description: HPCC cluster roxie node number
-
-  stop-cluster:
-    type: string
-    default: ""
-    description: trigger stop HPCC cluster
-
-  start-cluster:
-    type: string
-    default: ""
-    description: trigger start HPCC cluster
