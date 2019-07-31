@@ -31,5 +31,4 @@ provides:
   hpcc-dali:
     interface: hpcccluster
 
-
-
+terms: ["../copyright"]

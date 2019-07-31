@@ -54,3 +54,5 @@ storage:
        location: "/var/lib/HPCCSystems/"
        multiple:
           range: 0-10
+
+terms: ["./copyright"]

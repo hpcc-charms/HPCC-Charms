@@ -31,5 +31,4 @@ requires:
   hpcc-node:
     interface: hpcccluster
 
-
-
+terms: ["../copyright"]
