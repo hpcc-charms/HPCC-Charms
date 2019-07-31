@@ -117,3 +117,21 @@ def start_platform():
 #@when('hpcc-esp.available')     
 #def configure_esp(http):
 #    http.configure(8010)
+
+
+@hook('datastore-storage-detaching')
+def storage_detaching():
+    remove_state('platform.stopped')
+    remove_state('platform.stop.failed')
+    hpcc_init = HPCCInit()
+    if hpcc_init.stop():
+       set_state('platform.stopped')
+       hookenv.status_set('maintainance', 'stopped')
+    else:
+       set_state('platform.stop.failed')
+       hookenv.status_set('blocked', 'hpcc stop failed')
+
+
+@hook('datastore-storage-attaching')
+def storage_detaching():
+    log("storage attached", level=INFO)
