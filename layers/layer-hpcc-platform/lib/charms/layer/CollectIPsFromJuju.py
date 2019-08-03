@@ -25,7 +25,7 @@ class CollectIPsFromJuju (CollectIPs):
                  node_name.startswith('dali')      or
                  node_name.startswith('esp')       or
                  node_name.startswith('thor')      or
-                 node_name.startswith('roxiemaster')   or
+                 node_name.startswith('thormaster')   or
                  node_name.startswith('roxie')     or
                  node_name.startswith('eclcc')     or
                  node_name.startswith('scheduler') or
