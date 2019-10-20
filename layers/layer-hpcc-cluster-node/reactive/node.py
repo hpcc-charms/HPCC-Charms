@@ -43,7 +43,6 @@ def stop_node():
        return False
 
     clear_flag('endpoint.hpcc-node.stop-node')
-    clear_flag('endpoint.hpcc-node.node-wait')
     set_flag('endpoint.hpcc-node.node-stopped')
     return True
 
@@ -55,9 +54,7 @@ def start_node():
        status_set('blocked', 'start.error')
        return False
 
-    clear_flag('endpoint.hpcc-node.node-stopped')
     clear_flag('endpoint.hpcc-node.start-node')
-    clear_flag('endpoint.hpcc-node.node-wait')
     set_flag('endpoint.hpcc-node.node-started')
     status_set('active', 'HPCC started') 
     return True
@@ -94,7 +91,6 @@ def fetch_envxml():
 
 
     clear_flag('endpoint.hpcc-node.fetch-envxml')
-    clear_flag('endpoint.hpcc-node.node-wait')
     set_flag('endpoint.hpcc-node.envxml-fetched')
     status_set('maintenance', 'envxml-fetched')
     return True

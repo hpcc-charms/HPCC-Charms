@@ -24,24 +24,13 @@ from charms.reactive.bus import set_state
 from charms.reactive.bus import get_state
 from charms.reactive.bus import remove_state
 from charms.reactive import (
-     hook, when, when_not, set_flag, clear_flag,
+     hook, when, when_any, when_not, set_flag, clear_flag,
      endpoint_from_flag
 )
 
 from charms.layer.hpcc_init import HPCCInit
 from charms.layer.hpcc_config import HPCCConfig
 from charms.layer.hpccenv import HPCCEnv
-
-#This is only OK for the first add-relation
-#Shoud do this in node-ip changed
-#@when('endpoint.hpcc-dali.joined')
-#@when_not('endpoint.hpcc-dali.dali-published')
-#def publish_dali_server(self):
-#    dali_server = endpoint_from_flag('endpoint.hpcc-dali.joined')
-#    dali_server.publish_info()
-#    status_set('maintenance','dali.joined')
-#    set_flag('endpoint.hpcc-dali.dali-published')
-#    return True
 
 @when('endpoint.hpcc-dali.cluster-changed')
 @when_not('endpoint.hpcc-dali.changed.node-ip')
@@ -51,15 +40,17 @@ def cluster_change():
     config = hookenv.config()
     if config['auto-envxml']:
        set_flag('endpoint.hpcc-dali.update-env')
+
     return True
 
-@when('endpoint.hpcc-dali.update-env')
+@when_any('endpoint.hpcc-dali.update-env', 'endpoint.hpcc-dali.stop-cluster')
 @when_not('endpoint.hpcc-dali.cluster-stopped')
 @when_not('endpoint.hpcc-dali.wait-nodes-stopped')
 @when_not('endpoint.hpcc-dali.changed.node-ip')
 def stop_cluster():
     log('Stop other cluster nodes before dali', INFO)
     status_set('maintenance', 'stopping.cluster')
+    clear_flag('endpoint.hpcc-dali.stop-cluster')
     set_flag('endpoint.hpcc-dali.stopping-cluster')
     set_flag('endpoint.hpcc-dali.wait-nodes-stopped')
     return True
@@ -89,12 +80,13 @@ def update_env():
 @when('endpoint.hpcc-dali.env-updated')
 def fetch_env():
     clear_flag('endpoint.hpcc-dali.env-updated')
-    set_flag('endpoint.hpcc-dali.wait-fetch-envxml')
+    #set_flag('endpoint.hpcc-dali.wait-fetch-envxml')
     set_flag('endpoint.hpcc-dali.fetch-envxml')
 
 
 @when('endpoint.hpcc-dali.envxml-fetched')
-@when('endpoint.hpcc-dali.wait-fetch-envxml')
+#@when('endpoint.hpcc-dali.wait-fetch-envxml')
+@when_not('endpoint.hpcc-dali.cluster-started')
 @when_not('endpoint.hpcc-dali.changed.node-ip')
 def start_cluster():
     # start dali
@@ -108,8 +100,9 @@ def start_cluster():
 
     # start rest of cluster nodes
     clear_flag('endpoint.hpcc-dali.envxml-fetched')
-    clear_flag('endpoint.hpcc-dali.wait-fetch-envxml')
+    #clear_flag('endpoint.hpcc-dali.wait-fetch-envxml')
     set_flag('endpoint.hpcc-dali.starting-cluster')
+
 
 @when('endpoint.hpcc-dali.nodes-started')
 def cluster_started():
@@ -121,10 +114,14 @@ def cluster_started():
 def dali_config_changed():
 
     config = hookenv.config()
-    if  config['update-envxml'] == '': return
 
-    if config.changed('update-envxml'):
-        set_flag('endpoint.hpcc-dali.update-env')
+    if (config['start-cluster'] != '') and (config.changed('start-cluster')):
+       set_flag('endpoint.hpcc-dali.envxml-fetched')
+       #set_flag('endpoint.hpcc-dali.wait-fetch-envxml')
+    elif (config['stop-cluster'] != '') and (config.changed('stop-cluster')):
+       set_flag('endpoint.hpcc-dali.stop-cluster')
+    elif (config['update-envxml'] != '') and (config.changed('update-envxml')):
+       set_flag('endpoint.hpcc-dali.update-env')
 
 
 @when('endpoint.hpcc-dali.nodes-stopped')
@@ -135,6 +132,7 @@ def stop_dali():
        status_set('blocked', 'stop.dali.error')
        return False
 
+    clear_flag('endpoint.hpcc-dali.cluster-started')
     clear_flag('endpoint.hpcc-dali.wait-nodes-stopped')
     clear_flag('endpoint.hpcc-dali.nodes-stopped')
     set_flag('endpoint.hpcc-dali.cluster-stopped')

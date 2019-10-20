@@ -246,6 +246,10 @@ class PluginsInstallation (InstallationBasic):
               plugin_version = self.config[version]
            else:
               continue
+
+           if plugin_version == '':
+              continue
+
            self.install(plugin, 'plugins', plugin_version)
 
     def get_package_name(self):

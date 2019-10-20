@@ -46,3 +46,13 @@ requires:
     mysql-db:
       interface: mysql
       optional: true
+
+storage:
+    datastore:
+       type: filesystem
+       minimum-size: 100M
+       location: "/var/lib/HPCCSystems/"
+       multiple:
+          range: 0-10
+
+terms: ["./copyright"]

@@ -1,0 +1,18 @@
+description: "A simple bundle to deploy dali, thor and roxie each on separate nodes."
+series: "bionic"
+services: 
+  dali: 
+    charm: "cs:~ydjainopensource/hpcc-cluster-dali-0"
+    num_units: 1
+    expose: true
+  roxie: 
+    charm: "cs:~ydjainopensource/hpcc-cluster-node-0"
+    num_units: 1
+  thor: 
+    charm: "cs:~ydjainopensource/hpcc-cluster-node-0"
+    num_units: 1
+relations: 
+  - - "roxie"
+    - "dali"
+  - - "dali"
+    - "thor"
